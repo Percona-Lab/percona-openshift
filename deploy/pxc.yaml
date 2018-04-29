@@ -3,7 +3,7 @@ kind: Service
 metadata:
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: cluster1
+  name: pxccluster1
   labels:
     app: percona-xtradb-cluster
 spec:
@@ -22,13 +22,15 @@ spec:
   selector:
     matchLabels:
       app: percona-xtradb-cluster
-  serviceName: "cluster1"
+  serviceName: "pxccluster1"
   replicas: 3
   template:
     metadata:
       labels:
         app: percona-xtradb-cluster
     spec:
+      securityContext:
+        fsGroup: 1000140000
       containers:
       - name: mysql
         image:  perconalab/pxc-openshift

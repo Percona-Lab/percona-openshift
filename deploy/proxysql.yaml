@@ -1,20 +1,21 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: proxysql
-  app: proxysql-app
 spec:
   serviceName: "proxysql"
   replicas: 1
   selector:
-  front: proxysql
+    matchLabels:
+      front: proxysql
   template:
     metadata:
-      name: proxysql
       labels:
         app: proxysql
         front: proxysql
     spec:
+      securityContext:
+        fsGroup: 1000140000
       containers:
       - name: proxysql
         image:  perconalab/proxysql-openshift
@@ -48,7 +49,7 @@ spec:
               command: 
               - "/usr/bin/peer-list"
               - -on-start="/usr/bin/add_cluster_nodes.sh"
-              - -service=cluster1
+              - -service=pxccluster1 # name of the service running PXC StatefulSet
   volumeClaimTemplates:
   - metadata:
       name: proxydata
@@ -75,4 +76,4 @@ spec:
       protocol: TCP
       targetPort: 6032
   selector:
-    front: proxysql
+    app: proxysql

@@ -9,7 +9,8 @@ RUN useradd -u 1001 -r -g 0 -s /sbin/nologin \
 
 RUN rpmkeys --import https://www.percona.com/downloads/RPM-GPG-KEY-percona
 RUN yum install -y https://www.percona.com/redir/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
-RUN yum install -y Percona-Server-client-56 proxysql vim curl && chown -R 1001:0 /etc/proxysql* && chown -R 1001:0 /var/lib/proxysql
+RUN yum install -y Percona-Server-client-56 proxysql vim curl && \
+    chown -R 1001:0 /etc/proxysql* && chown -R 1001:0 /var/lib/proxysql
 
 ADD proxysql.cnf /etc/proxysql.cnf
 
