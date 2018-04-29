@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: proxysql
-        image:  perconalab/proxy-k8-expv1
+        image:  perconalab/proxysql-openshift
         ports:
         - containerPort: 3306
           name: mysql
@@ -28,11 +28,6 @@ spec:
           mountPath: /var/lib/proxysql
           subPath: data
         env:
-        - name: POD_NAMESPACE
-          valueFrom:
-               fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
               secretKeyRef:
