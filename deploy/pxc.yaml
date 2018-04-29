@@ -3,7 +3,7 @@ kind: Service
 metadata:
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: percona-xtradb-cluster
+  name: cluster1
   labels:
     app: percona-xtradb-cluster
 spec:
@@ -17,12 +17,12 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: cluster1
+  name: pxcnode
 spec:
   selector:
     matchLabels:
       app: percona-xtradb-cluster
-  serviceName: "percona-xtradb-cluster"
+  serviceName: "cluster1"
   replicas: 3
   template:
     metadata:

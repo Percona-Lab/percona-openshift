@@ -48,7 +48,7 @@ spec:
               command: 
               - "/usr/bin/peer-list"
               - -on-start="/usr/bin/add_cluster_nodes.sh"
-              - -service=percona-xtradb-cluster
+              - -service=cluster1
   volumeClaimTemplates:
   - metadata:
       name: proxydata
