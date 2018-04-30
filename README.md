@@ -36,3 +36,12 @@ Pay attention to the service name, defined in `name: pxccluster1`
 Deployment `proxysql.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
 The service to handled is defined in line: `- -service=pxccluster1`
 
+### A custom MySQL config. 
+The deployments support a custom MySQL config.
+You can customize `mysql-configmap.yaml` to add any configuration lines you may need.
+Next command will create a ConfigMap: `kubectl create -f mysql-configmap.yaml`. The ConfigMap must be created before any deployments.
+
+### Further work
+- [ ] Provide depoloyments for PMM Server
+- [ ] Configure nodes with PMM Client
+- [ ] Provide a guidance how to create / restore from backups
