@@ -22,3 +22,17 @@ The deployments assume you have a default `StorageClass` which will provide Pers
 We use `replica-set.yaml` to create a master with multiple slaves. The total amount of nodes is defined in `replicas: 2`.
 
 To scale an existing depoyment you can use `kubectl scale --replicas=5 statefulsets/rsnode` - this will scale the total amount of nodes to 5 (That is 1 master and 4 slaves)
+
+TODO:
+- [ ] Create ProxySQL service to handle master-slaves deployments
+
+### Percona XtraDB Cluster N nodes
+
+Deployment `pxc.yaml` will create a StatefulSet with N nodes (defined in `replicas: 3`)
+Pay attention to the service name, defined in `name: pxccluster1`
+
+### ProxySQL service over Percona XtraDB Cluster
+
+Deployment `proxysql.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
+The service to handled is defined in line: `- -service=pxccluster1`
+
