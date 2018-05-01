@@ -25,16 +25,24 @@ To scale an existing depoyment you can use `kubectl scale --replicas=5 statefuls
 
 TODO:
 - [ ] Create ProxySQL service to handle master-slaves deployments
+- [ ] Encrypted connections from ProxySQL to MySQL servers
+- [ ] Encrypted connections from clients to MySQL servers
+
 
 ### Percona XtraDB Cluster N nodes
-
 Deployment `pxc.yaml` will create a StatefulSet with N nodes (defined in `replicas: 3`)
 Pay attention to the service name, defined in `name: pxccluster1`
+
+TODO:
+- [ ] Encrypted connections from clients to PXC Nodes
 
 ### ProxySQL service over Percona XtraDB Cluster
 
 Deployment `proxysql.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
 The service to handled is defined in line: `- -service=pxccluster1`
+
+TODO:
+- [ ] Encrypted connections from ProxySQL to PXC Nodes
 
 ### A custom MySQL config. 
 The deployments support a custom MySQL config.
