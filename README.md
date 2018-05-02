@@ -71,3 +71,9 @@ For OpenShift replace `kubectl` with `oc`
 * Create deployment `kubectl create -f replica-set.yaml`
 * Delete deployment `kubectl delete -f replica-set.yaml`
 * Watch pods changing during deployment `watch kubectl get pods`
+* Diagnostic about a pod, in case of failure `kubectl describe po/rsnode-0`
+* Logs from pods `kubectl logs -f rsnode-0`
+* Logs from the particular container in pod `kubectl logs -f rsnode-1 -c clone-mysql`
+* Access to bash in container ` kubectl exec rsnode-0 -it -- bash`
+* Access to mysql in container `kubectl exec rsnode-0 -it -- mysql -uroot -proot_password`
+* Access to proxysql admin `kubectl exec proxysql-0 -it -- mysql  -uadmin -padmin -h127.0.0.1 -P6032`
