@@ -28,6 +28,11 @@ To scale an existing depoyment you can use `kubectl scale --replicas=5 statefuls
 Deployment `proxysql-replicaset.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
 The service to handled is defined in line: `- -service=replicaset1`
 
+### Backups
+
+It is possible to make a backup from a running master or slave.
+- Create a backup volume. Example `kubectl create -f backup-volume.yaml`
+- Run a backup job. Example `kubectl create -f xtrabackup-job.yaml`. **Important** Change `NODE_NAME` to a valid `podname.service` address as a source of backup.
 
 TODO:
 - [X] Create ProxySQL service to handle master-slaves deployments
