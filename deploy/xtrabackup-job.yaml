@@ -9,7 +9,7 @@ spec:
         fsGroup: 1000140000
       containers:
       - name: xtrabackup
-        image: /perconalab/backupjob-openshift
+        image: perconalab/backupjob-openshift
         command: ["bash","/usr/bin/backup.sh"]
         volumeMounts:
         - name: backup
