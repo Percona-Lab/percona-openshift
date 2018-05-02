@@ -1,6 +1,7 @@
 [mysqld]
 
 datadir=/var/lib/mysql
+socket=/tmp/mysql.sock
 
 default_storage_engine=InnoDB
 binlog_format=ROW
@@ -24,3 +25,5 @@ wsrep_cluster_name=Theistareykjarbunga
 wsrep_sst_method=xtrabackup-v2
 wsrep_sst_auth="root:"
 
+[client]
+socket=/tmp/mysql.sock
