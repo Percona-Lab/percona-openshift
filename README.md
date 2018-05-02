@@ -60,3 +60,14 @@ Next command will create a ConfigMap: `kubectl create -f mysql-configmap.yaml`. 
 - [ ] Provide depoloyments for PMM Server
 - [ ] Configure nodes with PMM Client
 - [ ] Provide a guidance how to create / restore from backups
+
+
+## Cheatsheet
+
+For OpenShift replace `kubectl` with `oc`
+
+* List available nodes `kubectl get nodes`
+* List running pods `kubectl get pods`
+* Create deployment `kubectl create -f replica-set.yaml`
+* Delete deployment `kubectl delete -f replica-set.yaml`
+* Watch pods changing during deployment `watch kubectl get pods`
