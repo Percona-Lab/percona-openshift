@@ -40,6 +40,11 @@ function wait_for_mysql() {
 	done
 }
 
+function check_if_pxc() {
+	local h=$1
+	echo $(mysql_root_exec $h "SHOW GLOBAL STATUS LIKE 'wsrep_connected'")
+}
+
 function wait_for_proxy() {
 	local h=127.0.0.1
 	echo "Waiting for host $h to be online..."
@@ -90,6 +95,14 @@ do
         servers_sql="$servers_sql\nREPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($reader_hostgroup_id, '$i', 3306);"
 done
 
+custom_scheduler=""
+pxcdetected=$(check_if_pxc ${first_host})
+
+# for PXC we deploy a custom scheduler
+if [[ ! -z $pxcdetected ]] ; then
+  custom_scheduler="REPLACE INTO scheduler(id,active,interval_ms,filename,arg1,arg2,arg3,arg4,arg5) VALUES (1,'1','3000','/usr/bin/proxysql_galera_checker','$default_hostgroup_id','$reader_hostgroup_id','1','1', '/var/lib/proxysql/proxysql_galera_checker.log');"
+fi
+
 servers_sql="$servers_sql\nLOAD MYSQL SERVERS TO RUNTIME; SAVE MYSQL SERVERS TO DISK;"
 
 users_sql="
@@ -102,7 +115,7 @@ scheduler_sql="
 UPDATE global_variables SET variable_value='$MYSQL_PROXY_USER' WHERE variable_name='mysql-monitor_username'; 
 UPDATE global_variables SET variable_value='$MYSQL_PROXY_PASSWORD' WHERE variable_name='mysql-monitor_password';
 LOAD MYSQL VARIABLES TO RUNTIME;SAVE MYSQL VARIABLES TO DISK;
-REPLACE INTO scheduler(id,active,interval_ms,filename,arg1,arg2,arg3,arg4,arg5) VALUES (1,'1','3000','/usr/bin/proxysql_galera_checker','$default_hostgroup_id','$reader_hostgroup_id','1','1', '/var/lib/proxysql/proxysql_galera_checker.log'); 
+$custom_scheduler
 LOAD SCHEDULER TO RUNTIME; SAVE SCHEDULER TO DISK;
 "
 

@@ -28,17 +28,20 @@ function join {
 }
 
 HOSTNAME=$(hostname)
+IPADDR=$(hostname -i)
 # Parse out cluster name, from service name:
 CLUSTER_NAME="$(hostname -f | cut -d'.' -f2)"
 
 while read -ra LINE; do
     if [[ "${LINE}" == *"${HOSTNAME}"* ]]; then
         MY_NAME=$LINE
+	continue
     fi
+    echo "read line $LINE, cluster name: $CLUSTER_NAME"
     PEERS=("${PEERS[@]}" $LINE)
 done
 
-if [ "${#PEERS[@]}" = 1 ]; then
+if [ "${#PEERS[@]}" = 0 ]; then
     WSREP_CLUSTER_ADDRESS=""
 else
     WSREP_CLUSTER_ADDRESS=$(join , "${PEERS[@]}")
@@ -47,7 +50,7 @@ echo $WSREP_CLUSTER_ADDRESS > /tmp/cluster_addr.txt
 
 #--wsrep_cluster_name=$CLUSTER_NAME --wsrep_cluster_address="gcomm://$cluster_join" --wsrep_sst_method=xtrabackup-v2 --wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" --wsrep_node_address="$ipaddr"
 
-sed -i -e "s|^wsrep_node_address=.*$|wsrep_node_address=${MY_NAME}|" ${CFG}
+sed -i -e "s|^wsrep_node_address=.*$|wsrep_node_address=${IPADDR}|" ${CFG}
 sed -i -e "s|^wsrep_cluster_name=.*$|wsrep_cluster_name=${CLUSTER_NAME}|" ${CFG}
 sed -i -e "s|^wsrep_cluster_address=.*$|wsrep_cluster_address=gcomm://${WSREP_CLUSTER_ADDRESS}|" ${CFG}
 

@@ -115,6 +115,9 @@ fi
 		echo
 		#mv /etc/my.cnf $DATADIR
 	fi
+	else 
+		# Cleanup directory 
+		rm -fr $DATADIR/*
 	fi
 
 #--log-error=${DATADIR}error.log
