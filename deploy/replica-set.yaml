@@ -49,9 +49,6 @@ spec:
           subPath: data
         - name: conf
           mountPath: /etc/mysql/conf.d
-        env:
-        - name: MYSQL_FORCE_RM_DATADIR
-          value: "1"
       containers:
       - name: mysql
         image:  perconalab/percona-rs

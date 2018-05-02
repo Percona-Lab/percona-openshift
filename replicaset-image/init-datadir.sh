@@ -13,6 +13,7 @@ rsname=${BASH_REMATCH[1]}
 servicename=$(hostname -f | cut -d"." -f2)
 echo "Detected name: $rsname $servicename"
 [[ $ordinal -eq 0 ]] && exit 0
+rm -fr /var/lib/mysql/*
 # Clone data from previous peer.
 ncat --recv-only ${rsname}-$(($ordinal-1)).${servicename} 3307 | xbstream -x -C /var/lib/mysql
 # Prepare the backup.
