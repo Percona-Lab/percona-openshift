@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: xtrabackup-job
+spec:
+  template:
+    spec:
+      securityContext:
+        fsGroup: 1000140000
+      containers:
+      - name: xtrabackup
+        image: perconalab/backupjob-openshift
+        command: ["bash","/usr/bin/backup.sh"]
+        volumeMounts:
+        - name: backup
+          mountPath: /backup
+        env:
+          - name: NODE_NAME
+            value: "rsnode-0.replicaset1"
+      restartPolicy: Never
+      volumes:
+      - name: backup
+        persistentVolumeClaim:
+          claimName: backup-volume
+  backoffLimit: 4
