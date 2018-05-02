@@ -39,7 +39,7 @@ fi
 		if [ ! -z "$MYSQL_ROOT_PASSWORD_FILE" -a -z "$MYSQL_ROOT_PASSWORD" ]; then
 		  MYSQL_ROOT_PASSWORD=$(cat $MYSQL_ROOT_PASSWORD_FILE)
 		fi
-		rm -rf "$DATADIR/*.db" && mkdir -p "$DATADIR"
+		rm -rf "$DATADIR/*" && mkdir -p "$DATADIR"
 
 		echo "Running --initialize-insecure on $DATADIR"
 		ls -lah $DATADIR
