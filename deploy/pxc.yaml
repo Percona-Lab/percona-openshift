@@ -31,6 +31,14 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000140000
+      initContainers:
+      - name: clean-mysql
+        image: perconalab/percona-rs
+        command: ["rm","-fr","/var/lib/mysql/*"]
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/mysql
+          subPath: data
       containers:
       - name: mysql
         image:  perconalab/pxc-openshift
@@ -100,4 +108,4 @@ spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
-          storage: 1Gi
+          storage: 10Gi
