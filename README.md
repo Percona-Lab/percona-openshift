@@ -23,8 +23,14 @@ We use `replica-set.yaml` to create a master with multiple slaves. The total amo
 
 To scale an existing depoyment you can use `kubectl scale --replicas=5 statefulsets/rsnode` - this will scale the total amount of nodes to 5 (That is 1 master and 4 slaves)
 
+#### ProxySQL service over Percona ReplicaSet
+
+Deployment `proxysql-replicaset.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
+The service to handled is defined in line: `- -service=replicaset1`
+
+
 TODO:
-- [ ] Create ProxySQL service to handle master-slaves deployments
+- [X] Create ProxySQL service to handle master-slaves deployments
 - [ ] Encrypted connections from ProxySQL to MySQL servers
 - [ ] Encrypted connections from clients to MySQL servers
 
@@ -35,10 +41,11 @@ Pay attention to the service name, defined in `name: pxccluster1`
 
 TODO:
 - [ ] Encrypted connections from clients to PXC Nodes
+- [ ] Encrypted connections between PXC Nodes
 
 ### ProxySQL service over Percona XtraDB Cluster
 
-Deployment `proxysql.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
+Deployment `proxysql-pxc.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
 The service to handled is defined in line: `- -service=pxccluster1`
 
 TODO:
@@ -53,3 +60,20 @@ Next command will create a ConfigMap: `kubectl create -f mysql-configmap.yaml`. 
 - [ ] Provide depoloyments for PMM Server
 - [ ] Configure nodes with PMM Client
 - [ ] Provide a guidance how to create / restore from backups
+
+
+## Cheatsheet
+
+For OpenShift replace `kubectl` with `oc`
+
+* List available nodes `kubectl get nodes`
+* List running pods `kubectl get pods`
+* Create deployment `kubectl create -f replica-set.yaml`
+* Delete deployment `kubectl delete -f replica-set.yaml`
+* Watch pods changing during deployment `watch kubectl get pods`
+* Diagnostic about a pod, in case of failure `kubectl describe po/rsnode-0`
+* Logs from pods `kubectl logs -f rsnode-0`
+* Logs from the particular container in pod `kubectl logs -f rsnode-1 -c clone-mysql`
+* Access to bash in container ` kubectl exec rsnode-0 -it -- bash`
+* Access to mysql in container `kubectl exec rsnode-0 -it -- mysql -uroot -proot_password`
+* Access to proxysql admin `kubectl exec proxysql-0 -it -- mysql  -uadmin -padmin -h127.0.0.1 -P6032`
