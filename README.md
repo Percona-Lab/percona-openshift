@@ -41,6 +41,7 @@ Pay attention to the service name, defined in `name: pxccluster1`
 
 TODO:
 - [ ] Encrypted connections from clients to PXC Nodes
+- [ ] Encrypted connections between PXC Nodes
 
 ### ProxySQL service over Percona XtraDB Cluster
 
