@@ -1,23 +1,23 @@
-#!/bin/bash
+#!/bin/bash 
 
 exec > /tmp/cluster_add.log 2>&1 
 
 # Configs
 opt=" -vvv -f "
-default_hostgroup_id="10"
+writer_hostgroup_id="10"
 reader_hostgroup_id="20"
-TIMEOUT="10" # 10 sec timeout to wait for server
+TIMEOUT="600" # X sec timeout, to wait for server
+_MYSQL_PORT="${MYSQL_PORT:-3306}"
+_PROXY_ADMIN_USER="${PROXY_ADMIN_USER:-admin}"
+_PROXY_ADMIN_PASSWORD="${PROXY_ADMIN_PASSWORD:-admin}"
+_PROXY_ADMIN_PORT="${PROXY_ADMIN_PORT:-6032}"
+_MYSQL_ROOT_PASSWORD="${_MYSQL_ROOT_PASSWORD:-root_password}"
 
-# Remote exec hack
-if [ "$1" == "remote" ]
-then
-        remote="oc rsh proxysql-0"
-else
-        remote=""
-fi
+# Functions 
 
-
-# Functions
+function _echo() {
+	echo $1 | tee -a /tmp/add_nodes.log
+}
 
 function mysql_root_exec() {
   local server="$1"
@@ -25,13 +25,13 @@ function mysql_root_exec() {
   printf "%s\n" \
       "[client]" \
       "user=root" \
-      "password=${MYSQL_ROOT_PASSWORD}" \
+      "password=${_MYSQL_ROOT_PASSWORD}" \
       "host=${server}" \
-      | timeout $TIMEOUT $remote mysql --defaults-file=/dev/stdin --protocol=tcp -s -NB -e "${query}"
+      | timeout $TIMEOUT mysql --defaults-file=/dev/stdin --protocol=tcp -s -NB -e "${query}"
 }
 
 function wait_for_mysql() {
-	local h=$1
+	local h="$1"
 	echo "Waiting for host $h to be online..."
 	while [ "$(mysql_root_exec $h 'select 1')" != "1" ]
 	do
@@ -48,7 +48,7 @@ function check_if_pxc() {
 function wait_for_proxy() {
 	local h=127.0.0.1
 	echo "Waiting for host $h to be online..."
-	while [ "$(MYSQL_PWD=admin mysql -h$h -P6032 -uadmin -s -NB -e 'select 1')" != "1" ]
+	while [ "$(MYSQL_PWD=$_PROXY_ADMIN_PASSWORD mysql -h$h -P$_PROXY_ADMIN_PORT -u$_PROXY_ADMIN_USER -s -NB -e 'select 1')" != "1" ]
 	do
 		echo "ProxySQL is not up yet... sleeping ..."
 		sleep 1
@@ -77,37 +77,40 @@ then
 	exit
 fi
 
-ipaddr=$($remote hostname -i | awk ' { print $1 } ')
+ipaddr=$(hostname -i | awk ' { print $1 } ')
 IFS=',' read -ra ADDR <<< "$PEERSLIST"     
 first_host=${ADDR[0]}
 
-MYSQL_PWD=$MYSQL_ROOT_PASSWORD mysql $opt -h $first_host -uroot -e "GRANT ALL ON *.* TO '$MYSQL_PROXY_USER'@'$ipaddr' IDENTIFIED BY '$MYSQL_PROXY_PASSWORD';GRANT PROCESS ON *.* TO 'clustercheckuser'@'localhost' IDENTIFIED BY 'clustercheckpassword\!';"
-
-# Now prepare sql for proxysql
-
-cleanup_sql=""
-servers_sql="REPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($default_hostgroup_id, '$first_host', 3306);"
-
+# Wait for MySQL servers...
+servers_sql=""
 for i in "${ADDR[@]}"
 do
         echo "Found host: $i" 
-	wait_for_mysql $i
-        servers_sql="$servers_sql\nREPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($reader_hostgroup_id, '$i', 3306);"
+        wait_for_mysql $i
+	### Galera checker will add readers
+        #servers_sql="$servers_sql\nREPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($reader_hostgroup_id, '$i', $_MYSQL_PORT);"
 done
+
+# Add proxy user to MySQL
+MYSQL_PWD=$MYSQL_ROOT_PASSWORD mysql $opt -h $first_host -uroot -e "GRANT USAGE ON *.* TO '$MYSQL_PROXY_USER'@'$ipaddr' IDENTIFIED BY '$MYSQL_PROXY_PASSWORD';GRANT PROCESS ON *.* TO 'clustercheckuser'@'localhost' IDENTIFIED BY 'clustercheckpassword\!';"
+
+# Now prepare sql for proxysql
+cleanup_sql="DELETE FROM mysql_servers;"
+servers_sql="REPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($writer_hostgroup_id, '$first_host', $_MYSQL_PORT);$servers_sql"
 
 custom_scheduler=""
 pxcdetected=$(check_if_pxc ${first_host})
 
 # for PXC we deploy a custom scheduler
 if [[ ! -z $pxcdetected ]] ; then
-  custom_scheduler="REPLACE INTO scheduler(id,active,interval_ms,filename,arg1,arg2,arg3,arg4,arg5) VALUES (1,'1','3000','/usr/bin/proxysql_galera_checker','$default_hostgroup_id','$reader_hostgroup_id','1','1', '/var/lib/proxysql/proxysql_galera_checker.log');"
+  custom_scheduler="REPLACE INTO scheduler(id,active,interval_ms,filename,arg1,arg2,arg3,arg4,arg5) VALUES (1,'1','10000','/usr/bin/proxysql_galera_checker','$writer_hostgroup_id','$reader_hostgroup_id','1','1', '/var/lib/proxysql/proxysql_galera_checker.log');"
 fi
 
 servers_sql="$servers_sql\nLOAD MYSQL SERVERS TO RUNTIME; SAVE MYSQL SERVERS TO DISK;"
 
 users_sql="
-REPLACE INTO mysql_users (username, password, active, default_hostgroup, max_connections) VALUES ('root', '$MYSQL_ROOT_PASSWORD', 1, $default_hostgroup_id, 200);
-REPLACE INTO mysql_users (username, password, active, default_hostgroup, max_connections) VALUES ('$MYSQL_PROXY_USER', '$MYSQL_PROXY_PASSWORD', 1, $default_hostgroup_id, 200);
+REPLACE INTO mysql_users (username, password, active, default_hostgroup, max_connections) VALUES ('root', '$_MYSQL_ROOT_PASSWORD', 1, $writer_hostgroup_id, 200);
+REPLACE INTO mysql_users (username, password, active, default_hostgroup, max_connections) VALUES ('$MYSQL_PROXY_USER', '$MYSQL_PROXY_PASSWORD', 1, $writer_hostgroup_id, 200);
 LOAD MYSQL USERS TO RUNTIME; SAVE MYSQL USERS TO DISK;
 "
 
@@ -120,7 +123,7 @@ LOAD SCHEDULER TO RUNTIME; SAVE SCHEDULER TO DISK;
 "
 
 rw_split_sql="
-UPDATE mysql_users SET default_hostgroup=$default_hostgroup_id; 
+UPDATE mysql_users SET default_hostgroup=$writer_hostgroup_id; 
 LOAD MYSQL USERS TO RUNTIME;
 SAVE MYSQL USERS TO DISK; 
 REPLACE INTO mysql_query_rules (rule_id,active,match_digest,destination_hostgroup,apply)
@@ -134,6 +137,6 @@ SAVE MYSQL QUERY RULES TO DISK;
 #echo $servers_sql, $users_sql, $scheduler_sql, $rw_split_sql
 wait_for_proxy
 
-mysql $opt -h127.0.0.1 -P6032 -uadmin -padmin -e "$cleanup_sql $servers_sql $users_sql $scheduler_sql $rw_split_sql"
+MYSQL_PWD=$_PROXY_ADMIN_PASSWORD mysql $opt -h127.0.0.1 -P$_PROXY_ADMIN_PORT -u$_PROXY_ADMIN_USER -e "$cleanup_sql $servers_sql $users_sql $scheduler_sql $rw_split_sql"
 
 echo "All done!"
