@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: proxysql
-        image:  localhost:5000/proxysql-openshift
+        image:  perconalab/proxysql-openshift
         ports:
         - containerPort: 3306
           name: mysql
