@@ -14,7 +14,7 @@ spec:
   selector:
     app: percona-xtradb-cluster
 ---
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: pxcnode
@@ -29,11 +29,9 @@ spec:
       labels:
         app: percona-xtradb-cluster
     spec:
-      securityContext:
-        fsGroup: 1000140000
       containers:
       - name: mysql
-        image:  perconalab/pxc-openshift
+        image:  localhost:5000/pxc-openshift
         imagePullPolicy: Always
         ports:
         - containerPort: 3306
@@ -73,6 +71,8 @@ spec:
               secretKeyRef:
                 name: mysql-passwords
                 key: root
+	  - name: MYSQL_ROOT_HOST
+            value: "172.%"
           - name: XTRABACKUP_PASSWORD
             valueFrom:
               secretKeyRef:
