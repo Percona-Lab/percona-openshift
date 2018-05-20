@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
       - name: mysql
-        image:  localhost:5000/pxc-openshift
+        image:  perconalab/pxc-openshift
         imagePullPolicy: Always
         ports:
         - containerPort: 3306
@@ -71,7 +71,7 @@ spec:
               secretKeyRef:
                 name: mysql-passwords
                 key: root
-	  - name: MYSQL_ROOT_HOST
+          - name: MYSQL_ROOT_HOST
             value: "172.%"
           - name: XTRABACKUP_PASSWORD
             valueFrom:
