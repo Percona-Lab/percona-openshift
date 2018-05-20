@@ -2,6 +2,8 @@
 set -e
 
 USER_ID=$(id -u)
+_MYSQL_ROOT_HOST="${MYSQL_ROOT_HOST:-%}"
+#echo "$_MYSQL_ROOT_HOST:$MYSQL_ROOT_HOST" > /tmp/env
 
 # if command starts with an option, prepend mysqld
 if [ "${1:0:1}" = '-' ]; then
@@ -27,6 +29,11 @@ fi
 	echo "Cluster address set to: $WSREP_CLUSTER_ADDRESS"
 
 	if [ -z "$WSREP_CLUSTER_ADDRESS" ]; then
+	
+	echo "Cluster address is empty! "
+	echo "Need to perform initial cleanup"
+	# Cleanup directory 
+        #rm -fr "$DATADIR/*"
 
 	if [ ! -e "$DATADIR/mysql" ]; then
 		echo "Running with password ::$MYSQL_ROOT_PASSWORD::"
@@ -73,8 +80,8 @@ fi
 			-- What's done in this file shouldn't be replicated
 			--  or products like mysql-fabric won't work
 			SET @@SESSION.SQL_LOG_BIN=0;
-			CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
-			GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
+			CREATE USER 'root'@'${_MYSQL_ROOT_HOST}' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}' ;
+			GRANT ALL ON *.* TO 'root'@'${_MYSQL_ROOT_HOST}' WITH GRANT OPTION ;
 			ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 			CREATE USER 'xtrabackup'@'localhost' IDENTIFIED BY '$XTRABACKUP_PASSWORD';
 			GRANT RELOAD,PROCESS,LOCK TABLES,REPLICATION CLIENT ON *.* TO 'xtrabackup'@'localhost';
@@ -82,6 +89,7 @@ fi
 			GRANT PROCESS ON *.* TO monitor@localhost IDENTIFIED BY 'monitor';
 			DROP DATABASE IF EXISTS test ;
 		EOSQL
+		
 		if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
 			mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
 		fi
@@ -109,15 +117,17 @@ fi
 			echo >&2 'MySQL init process failed.'
 			exit 1
 		fi
+		
+		echo "${mysql[@]}" > /tmp/mysql_init
 
 		echo
 		echo 'MySQL init process done. Ready for start up.'
 		echo
 		#mv /etc/my.cnf $DATADIR
 	fi
-	else 
+	#else 
 		# Cleanup directory 
-		rm -fr $DATADIR/*
+		#rm -fr $DATADIR/*
 	fi
 
 #--log-error=${DATADIR}error.log
