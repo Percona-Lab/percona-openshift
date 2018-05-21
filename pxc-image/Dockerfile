@@ -15,7 +15,7 @@ ARG REPO_URL=http://www.percona.com/downloads/percona-release/redhat/0.1-4/perco
 
 # Install server
 RUN yum install -y $REPO_URL \
-  && yum install -y Percona-XtraDB-Cluster-57 curl vim \
+  && yum install -y Percona-XtraDB-Cluster-57 curl vim nmap \
   && yum clean all -y && rm -rf /var/cache/yum \
   && mkdir -p /etc/mysql/conf.d/ && mkdir -p /var/log/mysql && mkdir -p /var/lib/mysql \
   && chown -R 1001 /etc/mysql/ /var/log/mysql /var/lib/mysql \

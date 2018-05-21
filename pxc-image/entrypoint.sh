@@ -131,6 +131,9 @@ fi
 	fi
 
 #--log-error=${DATADIR}error.log
+ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
+            "xtrabackup --backup --slave-info --stream=xbstream --host=127.0.0.1 --user=xtrabackup --password=$XTRABACKUP_PASSWORD" &
+
 exec mysqld --user=mysql --wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" $CMDARG
 sleep 1000
 
