@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 USER_ID=$(id -u)
 _MYSQL_ROOT_HOST="${MYSQL_ROOT_HOST:-%}"
@@ -31,9 +31,13 @@ fi
 	if [ -z "$WSREP_CLUSTER_ADDRESS" ]; then
 	
 	echo "Cluster address is empty! "
-	echo "Need to perform initial cleanup"
-	# Cleanup directory 
-        #rm -fr "$DATADIR/*"
+       
+	if [ ! -z "$MYSQL_INIT_DATADIR" ]; then
+	   echo "Need to perform initial cleanup"
+	  # Cleanup directory 
+          # ls -lahR "$DATADIR"
+           rm -fr $DATADIR/*
+        fi
 
 	if [ ! -e "$DATADIR/mysql" ]; then
 		echo "Running with password ::$MYSQL_ROOT_PASSWORD::"
@@ -46,11 +50,10 @@ fi
 		if [ ! -z "$MYSQL_ROOT_PASSWORD_FILE" -a -z "$MYSQL_ROOT_PASSWORD" ]; then
 		  MYSQL_ROOT_PASSWORD=$(cat $MYSQL_ROOT_PASSWORD_FILE)
 		fi
-		rm -rf "$DATADIR/*" && mkdir -p "$DATADIR"
+		rm -rf $DATADIR/* && mkdir -p $DATADIR
 
 		echo "Running --initialize-insecure on $DATADIR"
-		ls -lah $DATADIR
-		mysqld --initialize-insecure
+		mysqld --initialize-insecure --skip-ssl
 		echo 'Finished --initialize-insecure'
 
 		mysqld --user=mysql --datadir="$DATADIR" --skip-networking &
@@ -132,8 +135,6 @@ fi
 
 #--log-error=${DATADIR}error.log
 ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
-            "xtrabackup --backup --slave-info --stream=xbstream --host=127.0.0.1 --user=xtrabackup --password=$XTRABACKUP_PASSWORD" &
+            "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e 'set global wsrep_desync=on' > /dev/null 2>&1;  xtrabackup --backup --slave-info --galera-info --stream=xbstream --host=127.0.0.1 --user=xtrabackup --password=$XTRABACKUP_PASSWORD --target-dir=/tmp; mysql -uroot -p$MYSQL_ROOT_PASSWORD -e 'set global wsrep_desync=off' > /dev/null 2>&1" > /tmp/ncat_xtrabackup.log &
 
 exec mysqld --user=mysql --wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" $CMDARG
-sleep 1000
-
