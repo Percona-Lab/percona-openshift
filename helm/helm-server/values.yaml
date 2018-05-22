@@ -1,0 +1,39 @@
+## percona image version
+## ref: https://hub.docker.com/r/library/percona/tags/
+##
+imageRepo: "perconalab/pxc-openshift"
+imageTag: "test"
+replicas: 3
+
+## Specify an imagePullPolicy (Required)
+## It's recommended to change this to 'Always' if the image tag is 'latest'
+## ref: http://kubernetes.io/docs/user-guide/images/#updating-images
+##
+imagePullPolicy: Always
+
+pmm:
+  enabled: true
+  service: "pmm1-pmm-server-service"
+
+## Persist data to a persitent volume
+persistence:
+  enabled: true
+  ## percona data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  accessMode: ReadWriteOnce
+  size: 8Gi
+  initdatadir: true
+
+## Configure resource requests and limits
+## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+##
+resources:
+  requests:
+    memory: 1256Mi
+    cpu: 1

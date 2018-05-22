@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "percona.fullname" . }}
+  labels:
+    app: {{ template "percona.fullname" . }}
+data:
+  extra.cnf: |
+    [mysqld]
+    innodb-buffer-pool-size=1G
+  {{if .Values.pmm.enabled }}
+  extrapmm.cnf: |
+    [mysqld]
+    log_output=file
+    slow_query_log=ON
+    long_query_time=0
+    log_slow_rate_limit=100
+    log_slow_rate_type=query
+    log_slow_verbosity=full
+    log_slow_admin_statements=ON
+    log_slow_slave_statements=ON
+    slow_query_log_always_write_time=1
+    slow_query_log_use_global_control=all
+    innodb_monitor_enable=all
+  {{ end }}   

@@ -1,0 +1,2 @@
+PMM server can be accessed via port 80 on the following DNS name from within your cluster:
+{{ template "percona.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local

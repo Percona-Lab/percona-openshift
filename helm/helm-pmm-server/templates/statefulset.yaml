@@ -1,0 +1,107 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: {{ template "percona.fullname" . }}
+  labels:
+    app: {{ template "percona.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  serviceName: {{ template "percona.fullname" . }}
+  replicas: 1
+  updateStrategy: 
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ template "percona.fullname" . }}
+      component: pmm
+  template:
+    metadata:
+      labels:
+        app: {{ template "percona.fullname" . }}
+        component: pmm
+    spec:
+      containers:
+        - name: {{ template "percona.fullname" . }}
+          image: "{{ .Values.imageRepo }}:{{ .Values.imageTag }}"
+          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+          resources:
+{{ toYaml .Values.resources | indent 10 }}
+
+          ports:
+            - name: web
+              containerPort: 80
+          volumeMounts:
+            - name: pmmdata
+              mountPath: /pmmdata
+
+          env:
+            - name: DISABLE_UPDATES
+              value: "false"
+
+            - name: DISABLE_TELEMETRY
+              value: "true"
+
+            - name: METRICS_RESOLUTION
+              value: "1s"
+
+            - name: METRICS_RETENTION
+              value: "720h"
+
+            - name: QUERIES_RETENTION
+              value: "8"
+
+            - name: METRICS_MEMORY
+              value: "600000"
+        
+          command: ["bash"]
+          args:
+            - "-c"
+            - |
+              set -ex
+
+
+              if [ ! -f /pmmdata/app-init ]; then
+                  # the PV hasn't been initialized, so copy over default
+                  # pmm-server directories before symlinking
+                  mkdir -p /pmmdata
+
+                  mv /opt/prometheus/data /pmmdata/data
+                  mv /opt/consul-data /pmmdata
+                  mv /var/lib/mysql /pmmdata
+                  mv /var/lib/grafana /pmmdata
+
+                  # initialize the PV and then mark it complete
+                  touch /pmmdata/app-init
+              else
+                  # remove the default directories so we can symlink the
+                  # existing PV directories
+                  rm -Rf /opt/prometheus/data
+                  rm -Rf /opt/consul-data
+                  rm -Rf /var/lib/mysql
+                  rm -Rf /var/lib/grafana
+              fi
+
+              # symlink pmm-server paths to point to our PV
+              ln -s /pmmdata/data /opt/prometheus/
+              ln -s /pmmdata/consul-data /opt/
+              ln -s /pmmdata/mysql /var/lib/
+              ln -s /pmmdata/grafana /var/lib/
+              ls -lahR /usr/share/pmm-server/ 
+              /opt/entrypoint.sh
+      {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: pmmdata
+    spec:
+      accessModes: [ {{ .Values.persistence.accessMode | quote }} ]
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size }}
+      {{- else }}
+      volumes:
+      - name: pmmdata
+        hostPath:
+          path: "/mnt/disks/ssd0"
+      {{- end -}}
