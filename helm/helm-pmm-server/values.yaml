@@ -32,4 +32,4 @@ resources:
     memory: 256Mi
     cpu: 100m
 
-globalIP: 35.233.236.246
+globalIP: ""
