@@ -3,6 +3,25 @@ Set of scripts to run Percona software in OpenShift / Kubernetes / Google Cloud 
 
 ![Schema](/_img/K8S_Diagram.png "K8S")
 
+# Helm
+The best way to deploy the software suite is to use propose Helm charts.
+
+## PMM-Server
+pmm-server and pmm-client containers require a root privileges (RunAs: 0), so make sure Kubernetes or OpenShit allows it
+if you plan to use PMM monitoring
+
+To start pmm-server, from helm/helm-pmm-server execute:
+
+    helm install --name monitoring . -f values.yaml
+
+It will expose a public IP address for the access
+
+    kubectl get service
+```
+NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)        AGE
+monitoring-service   LoadBalancer   10.31.242.113   35.233.168.128   80:32516/TCP   10m
+```
+
 ## MySQL Passwords
 Before deployments you need to create passwords (secrets) which will be used to access Percona Server / Percona XtraDB Cluster.
 We provide file https://github.com/Percona-Lab/percona-openshift/blob/master/deploy/secret.yaml as an example. **Please use your own secure passwords!**
