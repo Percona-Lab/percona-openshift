@@ -1,6 +1,8 @@
 # percona-openshift
 Set of scripts to run Percona software in OpenShift / Kubernetes / Google Cloud Kubernetes Engine
 
+![Schema](/_img/K8S Diagram.png)
+
 ## MySQL Passwords
 Before deployments you need to create passwords (secrets) which will be used to access Percona Server / Percona XtraDB Cluster.
 We provide file https://github.com/Percona-Lab/percona-openshift/blob/master/deploy/secret.yaml as an example. **Please use your own secure passwords!**
