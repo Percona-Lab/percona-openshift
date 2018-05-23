@@ -22,6 +22,38 @@ NAME                 TYPE           CLUSTER-IP      EXTERNAL-IP      PORT(S)    
 monitoring-service   LoadBalancer   10.31.242.113   35.233.168.128   80:32516/TCP   10m
 ```
 
+## Percona XtraDB Cluster
+
+Basic deployment
+
+    helm install --name cluster1 . -f values.yaml
+
+By default will deploy proxysql in from of nodes and pmm-client on each node
+
+    kubectl get service
+```
+NAME                  READY     STATUS    RESTARTS   AGE
+cluster1-node-0       2/2       Running   0          5m
+cluster1-node-1       2/2       Running   0          4m
+cluster1-node-2       2/2       Running   0          3m
+cluster1-proxysql-0   2/2       Running   0          5m
+monitoring-0          1/1       Running   0          1h
+```
+
+Connect to ProxySQL admin:
+    
+    kubectl exec -it cluster1-proxysql-0 -c proxysql -- mysql -h127.0.0.1 -P6032 -uadmin -padmin
+
+Connect to PXC via ProxySQL from a client application:
+
+```
+kubectl run -i --tty percona-client --image=percona:5.7 --restart=Never -- bash -il
+root@percona-client:/# mysql -hcluster1-proxysql -uroot -psecr3t    
+```
+
+
+# Kubernetes deployments (without Helm)
+
 ## MySQL Passwords
 Before deployments you need to create passwords (secrets) which will be used to access Percona Server / Percona XtraDB Cluster.
 We provide file https://github.com/Percona-Lab/percona-openshift/blob/master/deploy/secret.yaml as an example. **Please use your own secure passwords!**
