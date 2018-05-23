@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 # cleanup dir in case volume mounted from previous instance
 rm -fr /var/lib/proxysql/*
 _PROXY_ADMIN_USER="${PROXY_ADMIN_USER:-admin}"
@@ -12,5 +12,11 @@ sed "s/PROXYSQL_USERNAME='admin'/PROXYSQL_USERNAME='$_PROXY_ADMIN_USER'/g" /etc/
 sed "s/PROXYSQL_PASSWORD='admin'/PROXYSQL_PASSWORD='$_PROXY_ADMIN_PASSWORD'/g" /etc/proxysql-admin.cnf 1<> /etc/proxysql-admin.cnf 
 
 #cp /etc/proxysql.cnf /tmp
+
+function add_peers {
+ /usr/bin/peer-list -on-start="/usr/bin/add_cluster_nodes.sh" -service="$PXCSERVICE"
+}
+
+add_peers &
 
 /usr/bin/proxysql --initial -f -c /etc/proxysql/proxysql.cnf 
