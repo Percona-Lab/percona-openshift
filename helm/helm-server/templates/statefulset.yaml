@@ -1,22 +1,23 @@
 apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
-  name: {{ template "percona.fullname" . }}
+  name: {{ template "percona.fullname" . }}-pxc
   labels:
     app: {{ template "percona.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+    component: {{ template "percona.fullname" . }}-pxcnodes
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      app: {{ template "percona.fullname" . }}
+      component: {{ template "percona.fullname" . }}-pxcnodes
   serviceName: "{{ template "percona.fullname" . }}-cluster"
   template:
     metadata:
       labels:
-        app: {{ template "percona.fullname" . }}
+        component: {{ template "percona.fullname" . }}-pxcnodes
     spec:
       securityContext:
         fsGroup: 1001
@@ -54,12 +55,6 @@ spec:
         ports:
         - containerPort: 3306
           name: mysql
-        - containerPort: 4444
-          name: sst
-        - containerPort: 4567
-          name: replication
-        - containerPort: 4568
-          name: ist
         readinessProbe:
           exec:
             command:
@@ -84,11 +79,6 @@ spec:
       - name: pmmclient
         image: "perconalab/pmm-client"
         imagePullPolicy: Always
-        ports:
-        - containerPort: 42001
-          name: query-data
-        - containerPort: 42002
-          name: mysql-metrics
         volumeMounts:
         - name: datadir
           mountPath: /var/lib/mysql
@@ -134,3 +124,87 @@ spec:
         hostPath:
           path: "/mnt/disks/ssd0"
       {{- end }}
+{{- if .Values.proxysql.enabled }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "percona.fullname" . }}-proxysql
+  labels:
+    app: {{ template "percona.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    component: {{ template "percona.fullname" . }}-proxysql
+spec:
+  serviceName: "{{ template "percona.fullname" . }}-proxysql"
+  replicas: 1
+  selector:
+    matchLabels:
+      component: {{ template "percona.fullname" . }}-proxysql
+  template:
+    metadata:
+      labels:
+        component: {{ template "percona.fullname" . }}-proxysql
+    spec:
+      securityContext:
+        fsGroup: 1001
+      containers:
+      - name: proxysql
+        image:  perconalab/proxysql-openshift
+        imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        ports:
+        - containerPort: 3306
+          name: mysql
+        - containerPort: 6032
+          name: proxyadm
+        volumeMounts:
+        - name: proxydata
+          mountPath: /var/lib/proxysql
+          subPath: data
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "percona.fullname" . }}
+                key: root
+        - name: MYSQL_PROXY_USER
+          value: "proxyuser"
+        - name: MYSQL_PROXY_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: {{ template "percona.fullname" . }}
+                key: proxyuser
+        - name: PXCSERVICE
+          value: "{{ template "percona.fullname" . }}-cluster"
+      {{- if .Values.pmm.enabled }}
+      - name: pmmclient
+        image: "perconalab/pmm-client"
+        imagePullPolicy: Always
+        command: ["bash"]
+        args:
+          - "-c"
+          - |
+            set -x
+            pmm-admin config --server {{ .Values.pmm.service }} --force
+            pmm-admin add linux:metrics --force
+       
+            until pmm-admin add proxysql:metrics --dsn "admin:admin@tcp(localhost:6032)/";
+            do
+              echo "pmm-admin failed"
+              sleep 1
+            done
+            # keep the container alive but still responsive to stop requests
+            trap : TERM INT; sleep infinity & wait
+      {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: proxydata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
+{{- end }}

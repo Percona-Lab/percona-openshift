@@ -7,7 +7,7 @@ metadata:
 data:
   extra.cnf: |
     [mysqld]
-    innodb-buffer-pool-size=1G
+    innodb-buffer-pool-size=128M
   {{if .Values.pmm.enabled }}
   extrapmm.cnf: |
     [mysqld]

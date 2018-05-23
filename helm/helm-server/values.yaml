@@ -2,7 +2,7 @@
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
 imageRepo: "perconalab/pxc-openshift"
-imageTag: "test"
+imageTag: "latest"
 replicas: 3
 
 ## Specify an imagePullPolicy (Required)
@@ -14,6 +14,9 @@ imagePullPolicy: Always
 pmm:
   enabled: true
   service: "pmm1-pmm-server-service"
+
+proxysql:
+  enabled: true
 
 ## Persist data to a persitent volume
 persistence:
@@ -35,5 +38,5 @@ persistence:
 ##
 resources:
   requests:
-    memory: 1256Mi
-    cpu: 1
+    memory: 256Mi
+    cpu: 500m
