@@ -11,6 +11,14 @@ replicas: 3
 ##
 imagePullPolicy: Always
 
+## !!!! Change passwords to secure ones !!!!
+passwords:
+  mysqlroot: "secr3t"
+  xtrabackup: "secr3t"
+  monitor: "secr3t"
+  clustercheck: "secr3t"
+  proxyuser: "secr3t"
+
 pmm:
   enabled: true
   service: "pmm1-pmm-server-service"
@@ -31,7 +39,9 @@ persistence:
   # storageClass: "-"
   accessMode: ReadWriteOnce
   size: 8Gi
-  initdatadir: true
+  
+  # if you changed passwords - you need to re-init datadir, otherwise passwords will stay the same
+  initdatadir: false
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

@@ -1,6 +1,3 @@
-Percona can be accessed via port 3306 on the following DNS name from within your cluster:
-{{ template "percona.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
-
 To get your root password run:
 
     kubectl get secret --namespace {{ .Release.Namespace }} {{ template "percona.fullname" . }} -o jsonpath="{.data.root}" | base64 --decode; echo
