@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ex
-if [ ! -z "$MYSQL_FORCE_RM_DATADIR" ]; then
+if [ ! -z "$MYSQL_INIT_DATADIR" ]; then
    echo "Cleaning up /var/lib/mysql"
    rm -fr /var/lib/mysql/*
 fi
@@ -13,7 +13,6 @@ rsname=${BASH_REMATCH[1]}
 servicename=$(hostname -f | cut -d"." -f2)
 echo "Detected name: $rsname $servicename"
 [[ $ordinal -eq 0 ]] && exit 0
-rm -fr /var/lib/mysql/*
 # Clone data from previous peer.
 ncat --recv-only ${rsname}-$(($ordinal-1)).${servicename} 3307 | xbstream -x -C /var/lib/mysql
 # Prepare the backup.

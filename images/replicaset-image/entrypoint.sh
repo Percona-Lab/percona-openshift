@@ -17,7 +17,7 @@ fi
         fi
         # Get config
         DATADIR="$("mysqld" --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
-	
+
         if [ ! -d "$DATADIR/mysql" ]; then
                 if [ -z "$MYSQL_ROOT_PASSWORD" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" -a -z "$MYSQL_RANDOM_ROOT_PASSWORD" -a -z "$MYSQL_ROOT_PASSWORD_FILE" ]; then
                         echo >&2 'error: database is uninitialized and password option is not specified '
@@ -115,5 +115,12 @@ fi
 
 echo "Starting listener for slave requests"
 /usr/bin/xtrabackup_nc.sh >> /tmp/xtrabackup_nc.log &
+
+[[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+ordinal=${BASH_REMATCH[1]}
+
+# Add an offset to avoid reserved server-id=0 value.
+#echo server-id=$((100 + $ordinal)) >> /etc/mysql/conf.d/server-id.cnf
+sed -i -e "s|^server_id=.*$|server_id=$((100 + $ordinal))|" /etc/mysql/node.cnf
 
 exec mysqld $CMDARG

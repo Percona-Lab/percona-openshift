@@ -83,23 +83,29 @@ first_host=${ADDR[0]}
 
 # Wait for MySQL servers...
 servers_sql=""
+cleanup_sql=""
+pxcdetected=$(check_if_pxc ${first_host})
 for i in "${ADDR[@]}"
 do
         echo "Found host: $i" 
         wait_for_mysql $i
 	### Galera checker will add readers
-        #servers_sql="$servers_sql\nREPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($reader_hostgroup_id, '$i', $_MYSQL_PORT);"
+if [[ -z $pxcdetected ]] ; then
+        servers_sql="$servers_sql\nREPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($reader_hostgroup_id, '$i', $_MYSQL_PORT);"
+	MYSQL_PWD=$MYSQL_ROOT_PASSWORD mysql $opt -h $i -uroot -e "GRANT USAGE ON *.* TO '$MYSQL_PROXY_USER'@'$ipaddr' IDENTIFIED BY '$MYSQL_PROXY_PASSWORD';"
+fi
 done
 
-# Add proxy user to MySQL
-MYSQL_PWD=$MYSQL_ROOT_PASSWORD mysql $opt -h $first_host -uroot -e "GRANT USAGE ON *.* TO '$MYSQL_PROXY_USER'@'$ipaddr' IDENTIFIED BY '$MYSQL_PROXY_PASSWORD';GRANT PROCESS ON *.* TO 'clustercheckuser'@'localhost' IDENTIFIED BY 'clustercheckpassword\!';"
+# Add proxy user to PXC
+if [[ ! -z $pxcdetected ]] ; then
+  MYSQL_PWD=$MYSQL_ROOT_PASSWORD mysql $opt -h $first_host -uroot -e "GRANT USAGE ON *.* TO '$MYSQL_PROXY_USER'@'$ipaddr' IDENTIFIED BY '$MYSQL_PROXY_PASSWORD';GRANT PROCESS ON *.* TO 'clustercheckuser'@'localhost' IDENTIFIED BY 'clustercheckpassword\!';"
+fi
 
 # Now prepare sql for proxysql
-cleanup_sql="DELETE FROM mysql_servers;"
+#cleanup_sql="DELETE FROM mysql_servers;"
 servers_sql="REPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($writer_hostgroup_id, '$first_host', $_MYSQL_PORT);$servers_sql"
 
 custom_scheduler=""
-pxcdetected=$(check_if_pxc ${first_host})
 
 # for PXC we deploy a custom scheduler
 if [[ ! -z $pxcdetected ]] ; then

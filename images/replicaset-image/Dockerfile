@@ -27,7 +27,6 @@ ADD node.cnf /etc/mysql/node.cnf
 RUN echo '!include /etc/mysql/node.cnf' > /etc/my.cnf
 RUN echo '!includedir /etc/mysql/conf.d/' >> /etc/my.cnf
 
-ADD init-mysql.sh /usr/bin/init-mysql.sh
 ADD init-datadir.sh /usr/bin/init-datadir.sh
 ADD mysqlcheck.sh /usr/bin/mysqlcheck.sh
 ADD xtrabackup_nc.sh /usr/bin/xtrabackup_nc.sh
