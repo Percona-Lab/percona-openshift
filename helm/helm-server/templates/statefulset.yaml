@@ -19,8 +19,10 @@ spec:
       labels:
         component: {{ template "percona.fullname" . }}-nodes
     spec:
+{{ if eq .Values.platform "kubernetes" }}
       securityContext:
         fsGroup: 1001
+{{ end }}
 {{ if eq .Values.kind "cluster" }}
       containers:
       - name: node
@@ -184,8 +186,10 @@ spec:
       labels:
         component: {{ template "percona.fullname" . }}-proxysql
     spec:
+{{ if eq .Values.platform "kubernetes" }}
       securityContext:
         fsGroup: 1001
+{{ end }}
       containers:
       - name: proxysql
         image:  perconalab/proxysql-openshift:test

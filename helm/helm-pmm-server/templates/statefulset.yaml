@@ -22,6 +22,8 @@ spec:
         app: {{ template "percona.fullname" . }}
         component: pmm
     spec:
+      securityContext:
+        runAsUser: 0
       containers:
         - name: {{ template "percona.fullname" . }}
           image: "{{ .Values.imageRepo }}:{{ .Values.imageTag }}"

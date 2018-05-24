@@ -2,8 +2,11 @@
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
 
-## A choice bettween "cluster" and "replicaset"
+## A choice between "cluster" and "replicaset"
 kind: "cluster"
+
+## A chouce between "kubernetes" and "openshift"
+platform: "kubernetes" 
 
 imageRepo: "perconalab/pxc-openshift"
 imageTag: "latest"
@@ -53,4 +56,4 @@ persistence:
 resources:
   requests:
     memory: 256Mi
-    cpu: 500m
+    cpu: 100m
