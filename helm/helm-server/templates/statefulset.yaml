@@ -1,56 +1,38 @@
 apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
-  name: {{ template "percona.fullname" . }}-pxc
+  name: {{ template "percona.fullname" . }}-node
   labels:
     app: {{ template "percona.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-    component: {{ template "percona.fullname" . }}-pxcnodes
+    component: {{ template "percona.fullname" . }}-nodes
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      component: {{ template "percona.fullname" . }}-pxcnodes
-  serviceName: "{{ template "percona.fullname" . }}-cluster"
+      component: {{ template "percona.fullname" . }}-nodes
+  serviceName: "{{ template "percona.fullname" . }}-nodes"
   template:
     metadata:
       labels:
-        component: {{ template "percona.fullname" . }}-pxcnodes
+        component: {{ template "percona.fullname" . }}-nodes
     spec:
       securityContext:
         fsGroup: 1001
+{{ if eq .Values.kind "cluster" }}
       containers:
-      - name: pxcnode
+      - name: node
         image: "{{ .Values.imageRepo }}:{{ .Values.imageTag }}"
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         env:
-   {{- if .Values.persistence.initdatadir }}
-        - name: MYSQL_INIT_DATADIR
-          value: "true"
-    {{ end }}
-        - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "percona.fullname" . }}
-              key: root
-        - name: XTRABACKUP_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "percona.fullname" . }}
-              key: xtrabackup
-        - name: MONITOR_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "percona.fullname" . }}
-              key: monitor
         - name: CLUSTERCHECK_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "percona.fullname" . }}
+              name: {{ template "percona.fullname" . }}-secrets
               key: clustercheck
         ports:
         - containerPort: 3306
@@ -70,6 +52,61 @@ spec:
           initialDelaySeconds: 300
           timeoutSeconds: 5
           periodSeconds: 10
+{{ else }}
+      initContainers:
+      - name: clone-mysql
+        image: perconalab/percona-rs
+        command: ["/bin/bash","/usr/bin/init-datadir.sh"]
+   {{- if .Values.persistence.initdatadir }}
+        env:
+        - name: MYSQL_INIT_DATADIR
+          value: "true"
+    {{ end }}
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/mysql
+        - name: config-volume
+          mountPath: /etc/mysql/conf.d
+      containers:
+      - name: mysql
+        image:  perconalab/percona-rs
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3306
+          name: mysql
+        readinessProbe:
+          exec:
+            command: ["/usr/bin/mysqlcheck.sh"]
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command: ["/usr/bin/mysqlcheck.sh"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
+          timeoutSeconds: 1
+{{ end }} 
+        env:
+   {{- if .Values.persistence.initdatadir }}
+        - name: MYSQL_INIT_DATADIR
+          value: "true"
+    {{ end }}
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "percona.fullname" . }}-secrets
+              key: root
+        - name: XTRABACKUP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "percona.fullname" . }}-secrets
+              key: xtrabackup
+        - name: MONITOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "percona.fullname" . }}-secrets
+              key: monitor
         volumeMounts:
         - name: datadir
           mountPath: /var/lib/mysql
@@ -86,7 +123,7 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ template "percona.fullname" . }}
+              name: {{ template "percona.fullname" . }}-secrets
               key: root
         command: ["bash"]
         args:
@@ -151,7 +188,7 @@ spec:
         fsGroup: 1001
       containers:
       - name: proxysql
-        image:  perconalab/proxysql-openshift
+        image:  perconalab/proxysql-openshift:test
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         ports:
         - containerPort: 3306
@@ -168,17 +205,17 @@ spec:
         - name: MYSQL_ROOT_PASSWORD
           valueFrom:
               secretKeyRef:
-                name: {{ template "percona.fullname" . }}
+                name: {{ template "percona.fullname" . }}-secrets
                 key: root
         - name: MYSQL_PROXY_USER
           value: "proxyuser"
         - name: MYSQL_PROXY_PASSWORD
           valueFrom:
               secretKeyRef:
-                name: {{ template "percona.fullname" . }}
+                name: {{ template "percona.fullname" . }}-secrets
                 key: proxyuser
         - name: PXCSERVICE
-          value: "{{ template "percona.fullname" . }}-cluster"
+          value: "{{ template "percona.fullname" . }}-nodes"
       {{- if .Values.pmm.enabled }}
       - name: pmmclient
         image: "perconalab/pmm-client"

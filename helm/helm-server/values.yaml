@@ -1,6 +1,10 @@
 ## percona image version
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
+
+## A choice bettween "cluster" and "replicaset"
+kind: "cluster"
+
 imageRepo: "perconalab/pxc-openshift"
 imageTag: "latest"
 replicas: 3
@@ -21,7 +25,7 @@ passwords:
 
 pmm:
   enabled: true
-  service: "pmm1-pmm-server-service"
+  service: "monitoring-service"
 
 proxysql:
   enabled: true
@@ -41,7 +45,7 @@ persistence:
   size: 8Gi
   
   # if you changed passwords - you need to re-init datadir, otherwise passwords will stay the same
-  initdatadir: false
+  initdatadir: true
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

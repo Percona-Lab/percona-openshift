@@ -3,7 +3,7 @@ kind: Service
 metadata:
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
-  name: "{{ template "percona.fullname" . }}-cluster"
+  name: "{{ template "percona.fullname" . }}-nodes"
   labels:
     app: {{ template "percona.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
@@ -15,7 +15,7 @@ spec:
     name: mysql-port
   clusterIP: None
   selector:
-    component: {{ template "percona.fullname" . }}-pxcnodes
+    component: {{ template "percona.fullname" . }}-nodes
 {{ if .Values.proxysql.enabled }}
 ---
 apiVersion: v1
