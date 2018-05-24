@@ -51,6 +51,9 @@ kubectl run -i --tty percona-client --image=percona:5.7 --restart=Never -- bash 
 root@percona-client:/# mysql -hcluster1-proxysql -uroot -psecr3t    
 ```
 
+## Master - N Slaves ReplicaSet
+
+     helm install --name rs1 . -f values.yaml  --set kind=replicaset
 
 # Kubernetes deployments (without Helm)
 
