@@ -55,6 +55,14 @@ root@percona-client:/# mysql -hcluster1-proxysql -uroot -psecr3t
 
      helm install --name rs1 . -f values.yaml  --set kind=replicaset
 
+# Helm with OpenShift
+
+PMM-Server and pmm-clients require to run under user:0 (root), which is complicated in OpenShift.
+So the proper way to start a helm release is:
+
+    helm install --name dep1 . -f values.yaml  --set pmm.enabled=false,platform=openshift
+Or edit `values.yaml` to change `pmm.enabled` and `platform`
+
 # Kubernetes deployments (without Helm)
 
 ## MySQL Passwords
