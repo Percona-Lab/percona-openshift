@@ -192,7 +192,7 @@ spec:
 {{ end }}
       containers:
       - name: proxysql
-        image:  perconalab/proxysql-openshift:test
+        image:  perconalab/proxysql-openshift
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         ports:
         - containerPort: 3306
