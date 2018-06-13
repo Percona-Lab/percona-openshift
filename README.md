@@ -63,6 +63,12 @@ So the proper way to start a helm release is:
     helm install --name dep1 . -f values.yaml  --set pmm.enabled=false,platform=openshift
 Or edit `values.yaml` to change `pmm.enabled` and `platform`
 
+# Backups
+
+To performa backups you need
+1. Create a persistent backup volume. Adjust the file `backup-volume.yaml` for your needs
+2. Execute a backup job. Example is in `xtrabackup-job.yaml` file, to perform backup run: `kubectl apply -f xtrabackup-job.yaml`
+
 # Kubernetes deployments (without Helm)
 
 ## MySQL Passwords
