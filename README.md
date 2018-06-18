@@ -152,3 +152,9 @@ For OpenShift replace `kubectl` with `oc`
 * Access to bash in container ` kubectl exec rsnode-0 -it -- bash`
 * Access to mysql in container `kubectl exec rsnode-0 -it -- mysql -uroot -proot_password`
 * Access to proxysql admin `kubectl exec proxysql-0 -it -- mysql  -uadmin -padmin -h127.0.0.1 -P6032`
+
+### Sysbench
+
+Oneliner to prepare sysbench-tpcc database
+
+    kubectl run sysbench1 --image=perconalab/sysbench --restart=Never --env="LUA_PATH=/sysbench/sysbench-tpcc/?.lua" --command -- sysbench-tpcc/tpcc.lua --mysql-host=cluster1-node-0.cluster1-nodes --mysql-user=root --mysql-password=secr3t --scale=10 --mysql-db=sbtest --db-driver=mysql --force-pk=1 prepare
