@@ -48,7 +48,7 @@ persistence:
   size: 8Gi
   
   # if you changed passwords - you need to re-init datadir, otherwise passwords will stay the same
-  initdatadir: true
+  initdatadir: false
 
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
