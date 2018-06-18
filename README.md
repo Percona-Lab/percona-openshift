@@ -69,6 +69,12 @@ To performa backups you need
 1. Create a persistent backup volume. Adjust the file `backup-volume.yaml` for your needs
 2. Execute a backup job. Example is in `xtrabackup-job.yaml` file, to perform backup run: `kubectl apply -f xtrabackup-job.yaml`
 
+## Restore from backup
+To start the cluster from the backup
+1. Make sure the cluster is not running
+2. Locate directory you want to restore from on the backup volume, e.g. `cluster1-node-0.cluster1-nodes-2018-06-18-17-26`
+3. Adjust and run backup-restore job https://github.com/Percona-Lab/percona-openshift/blob/master/deploy/k8s/xtrabackup-restore-job-pxc.yaml
+
 # Kubernetes deployments (without Helm)
 
 ## MySQL Passwords
