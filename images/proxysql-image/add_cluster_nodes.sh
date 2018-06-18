@@ -102,7 +102,7 @@ if [[ ! -z $pxcdetected ]] ; then
 fi
 
 # Now prepare sql for proxysql
-#cleanup_sql="DELETE FROM mysql_servers;"
+cleanup_sql="DELETE FROM mysql_servers;"
 servers_sql="REPLACE INTO mysql_servers (hostgroup_id, hostname, port) VALUES ($writer_hostgroup_id, '$first_host', $_MYSQL_PORT);$servers_sql"
 
 custom_scheduler=""
