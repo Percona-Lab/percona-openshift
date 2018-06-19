@@ -9,7 +9,8 @@ kind: "cluster"
 platform: "kubernetes" 
 
 imageRepo: "perconalab/pxc-openshift"
-imageTag: "latest"
+imageTag: "0.5"
+imageProxySQLTag: "0.5"
 replicas: 3
 
 ## Specify an imagePullPolicy (Required)
