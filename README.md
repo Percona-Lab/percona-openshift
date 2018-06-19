@@ -7,7 +7,7 @@ Set of scripts to run Percona software in OpenShift / Kubernetes / Google Cloud 
 The best way to deploy the software suite is to use propose Helm charts.
 
 ## PMM-Server
-pmm-server and pmm-client containers require a root privileges (RunAs: 0), so make sure Kubernetes or OpenShit allows it
+pmm-server and pmm-client containers require a root privileges (RunAsUser: 0), so make sure Kubernetes or OpenShit allows it
 if you plan to use PMM monitoring
 
 To start pmm-server, from helm/helm-pmm-server execute:
