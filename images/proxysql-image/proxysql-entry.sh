@@ -14,7 +14,7 @@ sed "s/PROXYSQL_PASSWORD='admin'/PROXYSQL_PASSWORD='$_PROXY_ADMIN_PASSWORD'/g" /
 #cp /etc/proxysql.cnf /tmp
 
 function add_peers {
- /usr/bin/peer-list -on-change="/usr/bin/add_cluster_nodes.sh" -service="$PXCSERVICE"
+ /usr/bin/peer-list -on-start="/usr/bin/add_cluster_nodes.sh" -service="$PXCSERVICE"
 # TODO: for replicaset we need to use "-on-change" 
 }
 
