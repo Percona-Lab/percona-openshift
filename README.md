@@ -53,6 +53,8 @@ root@percona-client:/# mysql -hcluster1-proxysql -uroot -psecr3t
 
 ## Master - N Slaves ReplicaSet
 
+### ReplicaSet is currently broken, ProxySQL is not supported ###
+
      helm install --name rs1 . -f values.yaml  --set kind=replicaset
 
 # Helm with OpenShift
@@ -73,7 +75,7 @@ To performa backups you need
 To start the cluster from the backup
 1. Make sure the cluster is not running
 2. Locate directory you want to restore from on the backup volume, e.g. `cluster1-node-0.cluster1-nodes-2018-06-18-17-26`
-3. Adjust and run backup-restore job https://github.com/Percona-Lab/percona-openshift/blob/master/deploy/k8s/xtrabackup-restore-job-pxc.yaml
+3. Adjust and run backup-restore job https://github.com/Percona-Lab/percona-openshift/blob/master/deploy/xtrabackup-restore-job-pxc.yaml
 
 # Kubernetes deployments (without Helm)
 
@@ -92,29 +94,6 @@ The proposed depoyments were tested on Kubernetes 1.9 / OpenShift Origin 3.9. Th
 The deployments assume you have a default `StorageClass` which will provide Persistent Volumes. If not, you need to create `PersistentVolume` manually.
 
 ## Deployments
-
-### Master with N Slaves
-
-We use `replica-set.yaml` to create a master with multiple slaves. The total amount of nodes is defined in `replicas: 2`.
-
-To scale an existing depoyment you can use `kubectl scale --replicas=5 statefulsets/rsnode` - this will scale the total amount of nodes to 5 (That is 1 master and 4 slaves)
-
-#### ProxySQL service over Percona ReplicaSet
-
-Deployment `proxysql-replicaset.yaml` will create ProxySQL service and automatically configure to handle a traffic to Percona XtraDB Cluster service.
-The service to handled is defined in line: `- -service=replicaset1`
-
-### Backups
-
-It is possible to make a backup from a running master or slave.
-- Create a backup volume. Example `kubectl create -f backup-volume.yaml`
-- Run a backup job. Example `kubectl create -f xtrabackup-job.yaml`. **Important** Change `NODE_NAME` to a valid `podname.service` address as a source of backup.
-
-TODO:
-- [X] Create ProxySQL service to handle master-slaves deployments
-- [ ] Encrypted connections from ProxySQL to MySQL servers
-- [ ] Encrypted connections from clients to MySQL servers
-
 
 ### Percona XtraDB Cluster N nodes
 Deployment `pxc.yaml` will create a StatefulSet with N nodes (defined in `replicas: 3`)
