@@ -14,7 +14,7 @@ spec:
   selector:
     app: percona-xtradb-cluster
 ---
-apiVersion: apps/v1beta
+apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: pxcnode
