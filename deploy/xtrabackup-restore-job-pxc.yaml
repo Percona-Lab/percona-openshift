@@ -5,8 +5,6 @@ metadata:
 spec:
   template:
     spec:
-      securityContext:
-        fsGroup: 1001
       containers:
       - name: xtrabackup
         image: perconalab/backupjob-openshift
