@@ -17,8 +17,8 @@ RUN yum install -y Percona-Server-client-56 proxysql vim curl sysvinit-tools && 
 ADD proxysql.cnf /etc/proxysql/proxysql.cnf
 ADD proxysql-admin.cnf /tmp/proxysql-admin.cnf
 
-# a temporary hack, to be removed when it is in the main branch
-RUN curl https://raw.githubusercontent.com/percona/proxysql-admin-tool/v1.4.9-dev/proxysql-admin --output /usr/bin/proxysql-admin
+# removed, main branch now // a temporary hack, to be removed when it is in the main branch
+#RUN curl https://raw.githubusercontent.com/percona/proxysql-admin-tool/v1.4.9-dev/proxysql-admin --output /usr/bin/proxysql-admin
 RUN sed -i '23 {s/^/#/}' /usr/bin/proxysql-admin
 
 COPY proxysql-entry.sh /entrypoint.sh
