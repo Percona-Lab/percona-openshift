@@ -10,7 +10,7 @@ RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
 #RUN yum install -y https://github.com/sysown/proxysql/releases/download/v1.2.1/proxysql-1.2.1-1-centos7.x86_64.rpm
 
 RUN rpmkeys --import https://www.percona.com/downloads/RPM-GPG-KEY-percona
-RUN yum install -y https://www.percona.com/redir/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
+RUN yum install -y https://www.percona.com/redir/downloads/percona-release/redhat/latest/percona-release-0.1-6.noarch.rpm
 RUN yum install -y Percona-Server-client-56 proxysql vim curl sysvinit-tools && mkdir -p /etc/proxysql/ && \
     chown -R 1001:0 /etc/proxysql* && chown -R 1001:0 /var/lib/proxysql
 
