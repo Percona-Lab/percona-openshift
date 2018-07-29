@@ -39,7 +39,7 @@ spec:
           xtrabackup --prepare --target-dir=/var/lib/mysql
         env:
           - name: BACKUPSRC
-            value: {{ .Values.backupDir | quote }}
+            value: {{ .Values.persistence.backupDir | quote }}
         volumeMounts:
         - name: backup
           mountPath: /backup
