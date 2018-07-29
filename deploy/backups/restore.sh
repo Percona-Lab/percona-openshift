@@ -50,5 +50,4 @@ then
 	exit 0;
 fi
 
-$helm install --name $clusterName  --set backupDir="$backupDir"  $helmDir -f $helmDir/values.yaml
-
+$helm install --name $clusterName  --set persistence.backupDir=$backupDir,persistence.restoreBackup=true  $helmDir -f $helmDir/values.yaml
