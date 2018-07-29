@@ -52,8 +52,8 @@ persistence:
   
   # if you changed passwords - you need to re-init datadir, otherwise passwords will stay the same
   initdatadir: false
-  restoreBackup: true
-  backupDir: na
+  restoreBackup: false
+  backupDir: ""
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
