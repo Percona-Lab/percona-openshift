@@ -24,6 +24,28 @@ spec:
         fsGroup: 1001
 {{ end }}
 {{ if eq .Values.kind "cluster" }}
+{{- if .Values.persistence.restoreBackup }}
+      initContainers:
+      - name: restore-mysql
+        image: perconalab/backupjob-openshift
+        command:
+        - bash
+        - "-c"
+        - |
+          set -ex
+          cd /var/lib/mysql
+          rm -fr *
+          cat /backup/$BACKUPSRC/xtrabackup.stream | xbstream -x
+          xtrabackup --prepare --target-dir=/var/lib/mysql
+        env:
+          - name: BACKUPSRC
+            value: {{ .Values.backupDir | quote }}
+        volumeMounts:
+        - name: backup
+          mountPath: /backup
+        - name: datadir
+          mountPath: /var/lib/mysql
+{{ end }}
       containers:
       - name: node
         image: "{{ .Values.imageRepo }}:{{ .Values.imageTag }}"
@@ -144,6 +166,11 @@ spec:
         configMap:
           name: {{ template "percona.fullname" . }}
           optional: true
+{{- if .Values.persistence.restoreBackup }}
+      - name: backup
+        persistentVolumeClaim:
+          claimName: backup-volume
+{{- end }}
       {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:

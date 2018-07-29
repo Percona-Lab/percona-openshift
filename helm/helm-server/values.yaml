@@ -2,15 +2,17 @@
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
 
+nameOverride: "restore1"
+
 ## A choice between "cluster" and "replicaset"
 kind: "cluster"
 
 ## A chouce between "kubernetes" and "openshift"
-platform: "kubernetes" 
+platform: "openshift" 
 
 imageRepo: "perconalab/pxc-openshift"
-imageTag: "0.5"
-imageProxySQLTag: "0.5"
+imageTag: "latest"
+imageProxySQLTag: "latest"
 replicas: 3
 
 ## Specify an imagePullPolicy (Required)
@@ -28,7 +30,7 @@ passwords:
   proxyuser: "secr3t"
 
 pmm:
-  enabled: true
+  enabled: false
   service: "monitoring-service"
 
 proxysql:
@@ -50,7 +52,8 @@ persistence:
   
   # if you changed passwords - you need to re-init datadir, otherwise passwords will stay the same
   initdatadir: false
-
+  restoreBackup: true
+  backupDir: na
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##

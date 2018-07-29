@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -x
 
 USER_ID=$(id -u)
 _MYSQL_ROOT_HOST="${MYSQL_ROOT_HOST:-%}"
