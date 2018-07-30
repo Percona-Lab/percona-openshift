@@ -126,6 +126,11 @@ spec:
             secretKeyRef:
               name: {{ template "percona.fullname" . }}-secrets
               key: xtrabackup
+        - name: MONITOR_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "percona.fullname" . }}-secrets
+              key: monitor
         volumeMounts:
         - name: datadir
           mountPath: /var/lib/mysql
