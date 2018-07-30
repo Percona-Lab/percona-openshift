@@ -10,6 +10,7 @@
 #
 # Grant privileges required:
 # GRANT PROCESS ON *.* TO 'clustercheckuser'@'localhost' IDENTIFIED BY 'clustercheckpassword!';
+# Changed by Alexander Rubin to fix the Openshift/Kubernetes issue where we can't pass env parameters to liveness probes
 
 if [[ $1 == '-h' || $1 == '--help' ]];then
     echo "Usage: $0 <user> <pass> <available_when_donor=0|1> <log_file> <available_when_readonly=0|1> <defaults_extra_file>"
@@ -17,7 +18,10 @@ if [[ $1 == '-h' || $1 == '--help' ]];then
 fi
 
 MYSQL_USERNAME="${1-monitor}" 
-MYSQL_PASSWORD="${2-monitor}" 
+# Changed by Alexander Rubin to fix the Openshift/Kubernetes issue where we can't pass env parameters to liveness probes
+_MYSQL_PASSWORD="${2-${MONITOR_PASSWORD}}"
+MYSQL_PASSWORD="${_MYSQL_PASSWORD:-monitor}" 
+# End change
 AVAILABLE_WHEN_DONOR=${3:-1}
 ERR_FILE="${4:-/var/log/mysql/clustercheck.log}" 
 AVAILABLE_WHEN_READONLY=${5:-1}
