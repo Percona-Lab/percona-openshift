@@ -33,7 +33,7 @@ spec:
 
           ports:
             - name: web
-              containerPort: 80
+              containerPort: 443
           volumeMounts:
             - name: pmmdata
               mountPath: /pmmdata
@@ -41,9 +41,6 @@ spec:
           env:
             - name: DISABLE_UPDATES
               value: "false"
-
-            - name: DISABLE_TELEMETRY
-              value: "true"
 
             - name: METRICS_RESOLUTION
               value: "1s"
