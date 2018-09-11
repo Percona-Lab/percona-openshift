@@ -137,34 +137,21 @@ spec:
         - name: config-volume
           mountPath: /etc/mysql/conf.d/
       {{- if .Values.pmm.enabled }}
-      - name: pmmclient
-        image: "perconalab/pmm-client"
+      - name: pmm-client
+        image: perconalab/pmm-client
         imagePullPolicy: Always
-        volumeMounts:
-        - name: datadir
-          mountPath: /var/lib/mysql
         env:
-        - name: MYSQL_ROOT_PASSWORD
+        - name: PMM_SERVER
+          value: {{ .Values.pmm.service }}
+        - name: DB_TYPE
+          value: mysql
+        - name: DB_USER
+          value: root
+        - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "percona.fullname" . }}-secrets
               key: root
-        command: ["bash"]
-        args:
-          - "-c"
-          - |
-            set -x
-            pmm-admin config --server {{ .Values.pmm.service }} --force
-            pmm-admin add linux:metrics --force
-       
-            until pmm-admin add mysql:metrics --user root --password $MYSQL_ROOT_PASSWORD --host 127.0.0.1 --force;
-            do
-              echo "pmm-admin failed"
-              sleep 1
-            done
-            pmm-admin add mysql:queries --user root --password $MYSQL_ROOT_PASSWORD --host 127.0.0.1 --force
-            # keep the container alive but still responsive to stop requests
-            trap : TERM INT; sleep infinity & wait
       {{- end }}
       volumes:
       - name: config-volume
@@ -253,24 +240,16 @@ spec:
         - name: PXCSERVICE
           value: "{{ template "percona.fullname" . }}-nodes"
       {{- if .Values.pmm.enabled }}
-      - name: pmmclient
-        image: "perconalab/pmm-client"
+      - name: pmm-client
+        image: perconalab/pmm-client
         imagePullPolicy: Always
-        command: ["bash"]
-        args:
-          - "-c"
-          - |
-            set -x
-            pmm-admin config --server {{ .Values.pmm.service }} --force
-            pmm-admin add linux:metrics --force
-       
-            until pmm-admin add proxysql:metrics --dsn "admin:admin@tcp(localhost:6032)/";
-            do
-              echo "pmm-admin failed"
-              sleep 1
-            done
-            # keep the container alive but still responsive to stop requests
-            trap : TERM INT; sleep infinity & wait
+        env:
+        - name: PMM_SERVER
+          value: {{ .Values.pmm.service }}
+        - name: DB_TYPE
+          value: proxysql
+        - name: DB_ARGS
+          value: --dsn admin:admin@tcp(localhost:6032)/
       {{- end }}
   volumeClaimTemplates:
   - metadata:
