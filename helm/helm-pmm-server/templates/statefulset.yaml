@@ -22,8 +22,10 @@ spec:
         app: {{ template "percona.fullname" . }}
         component: pmm
     spec:
+{{ if eq .Values.platform "kubernetes" }}
       securityContext:
-        runAsUser: 0
+        fsGroup: 1000
+{{ end }}
       containers:
         - name: {{ template "percona.fullname" . }}
           image: "{{ .Values.imageRepo }}:{{ .Values.imageTag }}"
@@ -32,15 +34,16 @@ spec:
 {{ toYaml .Values.resources | indent 10 }}
 
           ports:
-            - name: web
-              containerPort: 443
+            - name: https
+              protocol: TCP
+              containerPort: 8443
           volumeMounts:
             - name: pmmdata
               mountPath: /pmmdata
 
           env:
             - name: DISABLE_UPDATES
-              value: "false"
+              value: "true"
 
             - name: METRICS_RESOLUTION
               value: "1s"
@@ -66,7 +69,7 @@ spec:
                   # pmm-server directories before symlinking
                   mkdir -p /pmmdata
 
-                  mv /opt/prometheus/data /pmmdata/data
+                  mv /opt/prometheus/data /pmmdata/prometheus-data
                   mv /opt/consul-data /pmmdata
                   mv /var/lib/mysql /pmmdata
                   mv /var/lib/grafana /pmmdata
@@ -83,11 +86,11 @@ spec:
               fi
 
               # symlink pmm-server paths to point to our PV
-              ln -s /pmmdata/data /opt/prometheus/
+              ln -s /pmmdata/prometheus-data /opt/prometheus/data
               ln -s /pmmdata/consul-data /opt/
               ln -s /pmmdata/mysql /var/lib/
               ln -s /pmmdata/grafana /var/lib/
-              ls -lahR /usr/share/pmm-server/ 
+
               /opt/entrypoint.sh
       {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
