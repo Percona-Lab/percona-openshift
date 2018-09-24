@@ -14,7 +14,7 @@ PMM is a free and open-source solution that you can run in your own environment 
 To install the chart with the release name `monitoring`:
 
 ```bash
-$ helm install --name monitoring . -f values.yaml
+$ helm install --name monitoring .
 ```
 
 > **Tip**: List all releases using `helm list`
@@ -24,7 +24,7 @@ $ helm install --name monitoring . -f values.yaml
 To uninstall/delete the `monitoring` deployment:
 
 ```bash
-$ helm delete monitoring
+$ helm delete --purge monitoring
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -33,16 +33,16 @@ The command removes all the Kubernetes components associated with the chart and 
 
 The following tables lists the configurable parameters of the Percona chart and their default values.
 
-| Parameter                  | Description                        | Default                                                    |
-| -----------------------    | ---------------------------------- | ---------------------------------------------------------- |
-| `imageTag`                 | `percona/pmm-server` image         | Most recent release                                        |
-| `imagePullPolicy`          | Image pull policy                  | `IfNotPresent`                                             |
-| `persistence.enabled`      | Create a volume to store data      | false                                                      |
-| `persistence.size`         | Size of persistent volume claim    | 8Gi RW                                                     |
-| `persistence.storageClass` | Type of persistent volume claim    | nil  (uses alpha storage class annotation)                 |
-| `persistence.accessMode`   | ReadWriteOnce or ReadOnly          | ReadWriteOnce                                              |
-| `resources`                | CPU/Memory resource requests/limits | Memory: `256Mi`, CPU: `100m`                              |
-| `globalIP`                 | IP address for the public access  | ""                                                          |
+| Parameter                  | Description                         | Default                                                    |
+| -----------------------    | ----------------------------------- | ---------------------------------------------------------- |
+| `imageTag`                 | `percona/pmm-server` image          | Most recent release                                        |
+| `imagePullPolicy`          | Image pull policy                   | `Always`                                                   |
+| `persistence.enabled`      | Create a volume to store data       | true                                                       |
+| `persistence.size`         | Size of persistent volume claim     | 8Gi RW                                                     |
+| `persistence.storageClass` | Type of persistent volume claim     | nil  (uses alpha storage class annotation)                 |
+| `persistence.accessMode`   | ReadWriteOnce or ReadOnly           | ReadWriteOnce                                              |
+| `resources`                | CPU/Memory resource requests/limits | Memory: `1Gi`, CPU: `0.5`                                  |
+| `globalIP`                 | IP address for the public access    | ""                                                         |
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 

@@ -10,8 +10,10 @@ metadata:
     heritage: "{{ .Release.Service }}"
 spec:
   ports:
-    - name: web
+    - name: https
+      protocol: TCP
       port: 443
+      targetPort: 8443
   selector:
     component: pmm
     app: {{ template "percona.fullname" . }}

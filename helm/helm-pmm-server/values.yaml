@@ -1,8 +1,11 @@
 ## percona image version
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
-imageRepo: "percona/pmm-server"
+imageRepo: "perconalab/pmm-server-openshift"
 imageTag: "latest"
+
+## A chouce between "kubernetes" and "openshift"
+platform: "kubernetes"
 
 ## Specify an imagePullPolicy (Required)
 ## It's recommended to change this to 'Always' if the image tag is 'latest'
@@ -29,7 +32,7 @@ persistence:
 ##
 resources:
   requests:
-    memory: 512Mi
-    cpu: 100m
+    memory: 1Gi
+    cpu: 0.5
 
 globalIP: ""
