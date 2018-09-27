@@ -12,7 +12,7 @@ if you plan to use PMM monitoring
 
 To start pmm-server, from helm/helm-pmm-server execute:
 
-    helm install --name monitoring . -f values.yaml
+    helm install --name monitoring ./helm/helm-pmm-server
 
 It will expose a public IP address for the access
 
@@ -26,7 +26,7 @@ monitoring-service   LoadBalancer   10.31.242.113   35.233.168.128   80:32516/TC
 
 Basic deployment
 
-    helm install --name cluster1 . -f values.yaml
+    helm install --name cluster1 ./helm/helm-server
 
 By default will deploy proxysql in from of nodes and pmm-client on each node
 
