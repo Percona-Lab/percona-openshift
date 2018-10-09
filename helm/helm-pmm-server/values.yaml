@@ -5,7 +5,7 @@ imageRepo: "perconalab/pmm-server-openshift"
 imageTag: "latest"
 
 ## A chouce between "kubernetes" and "openshift"
-platform: "kubernetes"
+platform: "openshift"
 
 ## Specify an imagePullPolicy (Required)
 ## It's recommended to change this to 'Always' if the image tag is 'latest'

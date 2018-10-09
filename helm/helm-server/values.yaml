@@ -8,7 +8,7 @@ nameOverride: "restore1"
 kind: "cluster"
 
 ## A chouce between "kubernetes" and "openshift"
-platform: "openshift" 
+platform: "openshift"
 
 imageRepo: "perconalab/pxc-openshift"
 imageTag: "latest"

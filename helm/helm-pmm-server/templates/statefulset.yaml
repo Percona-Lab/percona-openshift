@@ -22,8 +22,9 @@ spec:
         app: {{ template "percona.fullname" . }}
         component: pmm
     spec:
-{{ if eq .Values.platform "kubernetes" }}
       securityContext:
+        supplementalGroups: [1000]
+{{ if eq .Values.platform "kubernetes" }}
         fsGroup: 1000
 {{ end }}
       containers:
@@ -64,32 +65,45 @@ spec:
               set -ex
 
 
+              if [[ $EUID != 1000 ]]; then
+                  # logrotate requires UID in /etc/passwd
+                  sed -e "s^x:1000:^x:$EUID:^" /etc/passwd > /tmp/passwd
+                  cat /tmp/passwd > /etc/passwd
+                  rm -rf /tmp/passwd
+              fi
               if [ ! -f /pmmdata/app-init ]; then
                   # the PV hasn't been initialized, so copy over default
                   # pmm-server directories before symlinking
                   mkdir -p /pmmdata
 
-                  mv /opt/prometheus/data /pmmdata/prometheus-data
-                  mv /opt/consul-data /pmmdata
-                  mv /var/lib/mysql /pmmdata
-                  mv /var/lib/grafana /pmmdata
+                  rsync -a --owner=$EUID /opt/prometheus/data/ /pmmdata/prometheus-data/
+                  rsync -a --owner=$EUID /opt/consul-data/ /pmmdata/consul-data/
+                  rsync -a --owner=$EUID /var/lib/mysql/ /pmmdata/mysql/
+                  rsync -a --owner=$EUID /var/lib/grafana/ /pmmdata/grafana/
 
                   # initialize the PV and then mark it complete
                   touch /pmmdata/app-init
-              else
-                  # remove the default directories so we can symlink the
-                  # existing PV directories
-                  rm -Rf /opt/prometheus/data
-                  rm -Rf /opt/consul-data
-                  rm -Rf /var/lib/mysql
-                  rm -Rf /var/lib/grafana
               fi
+
+              # remove the default directories so we can symlink the
+              # existing PV directories
+              rm -Rf /opt/prometheus/data
+              rm -Rf /opt/consul-data
+              rm -Rf /var/lib/mysql
+              rm -Rf /var/lib/grafana
 
               # symlink pmm-server paths to point to our PV
               ln -s /pmmdata/prometheus-data /opt/prometheus/data
               ln -s /pmmdata/consul-data /opt/
               ln -s /pmmdata/mysql /var/lib/
               ln -s /pmmdata/grafana /var/lib/
+
+{{ if eq .Values.platform "openshift" }}
+              # http2 is not supported in openshift now
+              sed -e "s^ http2^^" /etc/nginx/conf.d/pmm.conf > /tmp/nginx
+              cat /tmp/nginx > /etc/nginx/conf.d/pmm.conf
+              rm -rf /tmp/nginx
+{{ end }}
 
               /opt/entrypoint.sh
       {{- if .Values.persistence.enabled }}
