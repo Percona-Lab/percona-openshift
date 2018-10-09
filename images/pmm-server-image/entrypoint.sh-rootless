@@ -61,10 +61,10 @@ fi
 
 # Upgrade
 if [ -f /var/lib/grafana/grafana.db ]; then
-    chown -R pmm:pmm /opt/consul-data
-    chown -R pmm:pmm /opt/prometheus/data
-    chown -R pmm:pmm /var/lib/mysql
-    chown -R pmm:pmm /var/lib/grafana
+    chown -R "$(id -u):$(id -g)" /opt/consul-data
+    chown -R "$(id -u):$(id -g)" /opt/prometheus/data
+    chown -R "$(id -u):$(id -g)" /var/lib/mysql
+    chown -R "$(id -u):$(id -g)" /var/lib/grafana
 fi
 
 # copy SSL, follow links

@@ -76,7 +76,7 @@ autorestart = true
 
 [program:cron2]
 priority = 5
-command = go-cron "0 0 0 * * *" env MYCNF=/opt/.my.cnf /etc/cron.daily/purge-qan-data
+command = go-cron "0 0 0 * * *" /etc/cron.daily/purge-qan-data
 stdout_logfile = /var/log/cron2.log
 stderr_logfile = /var/log/cron2.log
 autorestart = true
@@ -163,7 +163,7 @@ autorestart = unexpected
 priority = 9
 directory = /usr/share/orchestrator
 # Sleep to wait for mysql to start up.
-command = bash -c "sleep 7 && /usr/sbin/orchestrator http"
+command = bash -c "sleep 7 && /usr/sbin/orchestrator -verbose http"
 stdout_logfile = /var/log/orchestrator.log
 stderr_logfile = /var/log/orchestrator.log
 startretries = 60

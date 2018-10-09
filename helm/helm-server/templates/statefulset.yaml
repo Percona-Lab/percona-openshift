@@ -19,8 +19,9 @@ spec:
       labels:
         component: {{ template "percona.fullname" . }}-nodes
     spec:
-{{ if eq .Values.platform "kubernetes" }}
       securityContext:
+        supplementalGroups: [99]
+{{ if eq .Values.platform "kubernetes" }}
         fsGroup: 1001
 {{ end }}
 {{ if eq .Values.kind "cluster" }}
@@ -152,6 +153,9 @@ spec:
             secretKeyRef:
               name: {{ template "percona.fullname" . }}-secrets
               key: root
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/mysql
       {{- end }}
       volumes:
       - name: config-volume
@@ -200,8 +204,9 @@ spec:
       labels:
         component: {{ template "percona.fullname" . }}-proxysql
     spec:
-{{ if eq .Values.platform "kubernetes" }}
       securityContext:
+        supplementalGroups: [99]
+{{ if eq .Values.platform "kubernetes" }}
         fsGroup: 1001
 {{ end }}
       containers:
