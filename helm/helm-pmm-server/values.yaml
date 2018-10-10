@@ -4,7 +4,7 @@
 imageRepo: "perconalab/pmm-server-openshift"
 imageTag: "latest"
 
-## A chouce between "kubernetes" and "openshift"
+## A choice between "kubernetes" and "openshift"
 platform: "openshift"
 
 ## Specify an imagePullPolicy (Required)
