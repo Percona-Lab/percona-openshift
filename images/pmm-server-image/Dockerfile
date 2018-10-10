@@ -1,4 +1,4 @@
-FROM golang:latest
+FROM golang:1.11.1
 RUN go get github.com/michaloo/go-cron
 RUN mv bin/go-cron /usr/bin/go-cron
 
