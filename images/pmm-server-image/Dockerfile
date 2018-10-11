@@ -21,6 +21,7 @@ RUN touch \
     /var/log/createdb2.log \
     /var/log/createdb3.log \
     /var/log/orchestrator.log \
+    /var/log/entrypoint.sh.log \
     /var/log/purge-qan-data.log \
     /var/log/dashboard-upgrade.log \
     /var/log/node_exporter.log \
@@ -30,6 +31,7 @@ RUN chown -R pmm:pmm \
     /etc/grafana \
     /etc/supervisord.d/pmm.ini \
     /etc/prometheus.yml \
+    /etc/prometheus1.yml \
     /etc/orchestrator.conf.json \
     /etc/cron.daily/purge-qan-data \
     /var/lib \
@@ -53,6 +55,7 @@ RUN chown -R pmm:pmm \
     /var/log/createdb2.log \
     /var/log/createdb3.log \
     /var/log/orchestrator.log \
+    /var/log/entrypoint.sh.log \
     /var/log/purge-qan-data.log \
     /var/log/dashboard-upgrade.log \
     /var/log/node_exporter.log \
@@ -62,6 +65,7 @@ RUN chmod -R g+w \
     /etc/grafana \
     /etc/supervisord.d/pmm.ini \
     /etc/prometheus.yml \
+    /etc/prometheus1.yml \
     /etc/orchestrator.conf.json \
     /etc/cron.daily/purge-qan-data \
     /var/lib \
@@ -85,6 +89,7 @@ RUN chmod -R g+w \
     /var/log/createdb2.log \
     /var/log/createdb3.log \
     /var/log/orchestrator.log \
+    /var/log/entrypoint.sh.log \
     /var/log/purge-qan-data.log \
     /var/log/dashboard-upgrade.log \
     /var/log/node_exporter.log \
