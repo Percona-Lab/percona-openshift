@@ -22,8 +22,16 @@ type PerconaXtradbCluster struct {
 }
 
 type PerconaXtradbClusterSpec struct {
-	// Fill me
+	Size   int32                        `json:"size"`
+	Image  string                       `json:"image,omitempty"`
+	RunGID int64                        `json:"runGid,omitempty"`
+	RunUID int64                        `json:"runUid,omitempty"`
+	PXC    *PerconaXtradbClusterPXCSpec `json:"pxc,omitempty"`
 }
+type PerconaXtradbClusterPXCSpec struct {
+	Port int32 `json:"port,omitempty"`
+}
+
 type PerconaXtradbClusterStatus struct {
-	// Fill me
+	Nodes []string `json:"nodes"`
 }
