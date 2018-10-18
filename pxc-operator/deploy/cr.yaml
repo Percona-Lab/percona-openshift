@@ -1,4 +1,9 @@
 apiVersion: "pxc.percona.com/v1"
 kind: "PerconaXtradbCluster"
 metadata:
-  name: "example"
+  name: "percona-server-mongodb"
+spec:
+  size: 1 
+  image: perconalab/percona-xtradb-cluster
+  pxc:
+    port: 3306

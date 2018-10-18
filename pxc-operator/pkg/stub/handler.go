@@ -24,7 +24,7 @@ type Handler struct {
 func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
 	switch o := event.Object.(type) {
 	case *v1.PerconaXtradbCluster:
-		err := sdk.Create(newbusyBoxPod(o))
+		err := sdk.Create(newPXCPod(o))
 		if err != nil && !errors.IsAlreadyExists(err) {
 			logrus.Errorf("failed to create busybox pod : %v", err)
 			return err
@@ -33,10 +33,10 @@ func (h *Handler) Handle(ctx context.Context, event sdk.Event) error {
 	return nil
 }
 
-// newbusyBoxPod demonstrates how to create a busybox pod
-func newbusyBoxPod(cr *v1.PerconaXtradbCluster) *corev1.Pod {
+// newPXCPod creates a PXC pod
+func newPXCPod(cr *v1.PerconaXtradbCluster) *corev1.Pod {
 	labels := map[string]string{
-		"app": "busy-box",
+		"app": "pxc-openshift",
 	}
 	return &corev1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -44,7 +44,7 @@ func newbusyBoxPod(cr *v1.PerconaXtradbCluster) *corev1.Pod {
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "busy-box",
+			Name:      "pxc-openshift",
 			Namespace: cr.Namespace,
 			OwnerReferences: []metav1.OwnerReference{
 				*metav1.NewControllerRef(cr, schema.GroupVersionKind{
@@ -58,9 +58,9 @@ func newbusyBoxPod(cr *v1.PerconaXtradbCluster) *corev1.Pod {
 		Spec: corev1.PodSpec{
 			Containers: []corev1.Container{
 				{
-					Name:    "busybox",
-					Image:   "busybox",
-					Command: []string{"sleep", "3600"},
+					Name:    "pxc-openshift",
+					Image:   cr.Spec.Image, //"perconalab/pxc-openshift",
+					Command: []string{},
 				},
 			},
 		},
