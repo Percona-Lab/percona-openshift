@@ -15,3 +15,12 @@ kubectl delete -f deploy/operator.yaml
 kubectl delete -f deploy/crd.yaml
 kubectl delete -f deploy/rbac.yaml
 ```
+
+```sh
+OPERATOR_NAME=pxc-operator WATCH_NAMESPACE="andrew-pxc" operator-sdk up local
+kubectl apply -f deploy/cr.yaml
+```
+
+```sh
+kubectl delete -f deploy/cr.yaml
+```
