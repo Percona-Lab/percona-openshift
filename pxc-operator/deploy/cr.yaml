@@ -6,4 +6,6 @@ spec:
   size: 3 
   image: perconalab/pxc-openshift
   pxc:
-    port: 3306
+    ports:
+    - port: 3306
+      name: mysql-port
