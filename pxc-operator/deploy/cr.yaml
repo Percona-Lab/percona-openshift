@@ -9,3 +9,4 @@ spec:
     ports:
     - port: 3306
       name: mysql-port
+    storage: 10Gi
