@@ -2,7 +2,6 @@
 chmod = 0700
 username = dummy
 password = dummy
-file = /tmp/supervisord.sock
 
 [supervisord]
 childlogdir = /var/log/supervisor
@@ -12,7 +11,6 @@ pidfile = /tmp/supervisord.pid
 [supervisorctl]
 username = dummy
 password = dummy
-serverurl = unix:///tmp/supervisor.sock
 
 [program:mysql]
 priority = 1

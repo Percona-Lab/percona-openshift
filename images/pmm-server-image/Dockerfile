@@ -38,6 +38,7 @@ RUN chown -R pmm:pmm \
     /opt \
     /srv \
     /var/run/mysqld \
+    /var/run/supervisor \
     /var/lib/mysql \
     /var/lib/grafana \
     /var/log/grafana \
@@ -72,6 +73,7 @@ RUN chmod -R g+w \
     /opt \
     /srv \
     /var/run/mysqld \
+    /var/run/supervisor \
     /var/lib/mysql \
     /var/lib/grafana \
     /var/log/grafana \
@@ -113,7 +115,6 @@ RUN chmod -R g+rwx \
 RUN printf "[client]\nuser=root\n" > /home/pmm/.my.cnf
 
 # run rootless nginx
-RUN sed -i -e 's^unix:///var/run/supervisor/supervisor.sock^unix:///tmp/supervisord.sock^' /etc/supervisord.conf
 RUN sed -i -e 's^80^8080^; s^443^8443^' /etc/nginx/conf.d/pmm.conf
 RUN sed -i -e 's^/run/nginx.pid^/var/run/nginx/nginx.pid^' /etc/nginx/nginx.conf
 RUN install -o pmm -g pmm -m 0775 -d \
