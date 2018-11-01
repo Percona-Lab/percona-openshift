@@ -1,6 +1,6 @@
-#!/bin/bash 
+#!/bin/bash
 set -x
-exec > /tmp/cluster_add.log 2>&1 
+exec > /tmp/cluster_add.log 2>&1
 
 # Configs
 opt=" -vvv -f "
@@ -11,7 +11,7 @@ _PROXY_ADMIN_PASSWORD="${PROXY_ADMIN_PASSWORD:-admin}"
 _PROXY_ADMIN_PORT="${PROXY_ADMIN_PORT:-6032}"
 _MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root_password}"
 
-# Functions 
+# Functions
 
 function _echo() {
 	echo $1 | tee -a /tmp/add_nodes.log
@@ -76,18 +76,18 @@ then
 fi
 
 ipaddr=$(hostname -i | awk ' { print $1 } ')
-IFS=',' read -ra ADDR <<< "$PEERSLIST"     
+IFS=',' read -ra ADDR <<< "$PEERSLIST"
 first_host=${ADDR[0]}
 
 # Wait for MySQL servers...
 for i in "${ADDR[@]}"
 do
-        echo "Found host: $i" 
+        echo "Found host: $i"
         wait_for_mysql $i
 done
 
 wait_for_proxy
 
-proxysql-admin --config-file=/etc/proxysql-admin.cnf --enable --without-check-monitor-user --proxysql-username=$_PROXY_ADMIN_USER --proxysql-password=$_PROXY_ADMIN_PASSWORD --proxysql-port=$_PROXY_ADMIN_PORT --proxysql-hostname=127.0.0.1 --cluster-username=root --cluster-password=$_MYSQL_ROOT_PASSWORD --cluster-hostname=$first_host  --cluster-port=3306 --cluster-app-username=$MYSQL_PROXY_USER --cluster-app-password=$MYSQL_PROXY_PASSWORD --monitor-username=monitor --monitor-password=$MONITOR_PASSWORD --mode=singlewrite
-proxysql-admin --config-file=/etc/proxysql-admin.cnf --without-check-monitor-user --proxysql-username=$_PROXY_ADMIN_USER --proxysql-password=$_PROXY_ADMIN_PASSWORD --proxysql-port=$_PROXY_ADMIN_PORT --proxysql-hostname=127.0.0.1 --cluster-username=root --cluster-password=$_MYSQL_ROOT_PASSWORD --cluster-hostname=$first_host  --cluster-port=3306 --cluster-app-username=$MYSQL_PROXY_USER --cluster-app-password=$MYSQL_PROXY_PASSWORD --monitor-username=monitor --monitor-password=$MONITOR_PASSWORD --syncusers
+proxysql-admin --config-file=/etc/proxysql-admin.cnf --enable --use-existing-monitor-password --proxysql-username=$_PROXY_ADMIN_USER --proxysql-password=$_PROXY_ADMIN_PASSWORD --proxysql-port=$_PROXY_ADMIN_PORT --proxysql-hostname=127.0.0.1 --cluster-username=root --cluster-password=$_MYSQL_ROOT_PASSWORD --cluster-hostname=$first_host  --cluster-port=3306 --cluster-app-username=$MYSQL_PROXY_USER --cluster-app-password=$MYSQL_PROXY_PASSWORD --monitor-username=monitor --monitor-password=$MONITOR_PASSWORD --mode=singlewrite
+proxysql-admin --config-file=/etc/proxysql-admin.cnf --use-existing-monitor-password --proxysql-username=$_PROXY_ADMIN_USER --proxysql-password=$_PROXY_ADMIN_PASSWORD --proxysql-port=$_PROXY_ADMIN_PORT --proxysql-hostname=127.0.0.1 --cluster-username=root --cluster-password=$_MYSQL_ROOT_PASSWORD --cluster-hostname=$first_host  --cluster-port=3306 --cluster-app-username=$MYSQL_PROXY_USER --cluster-app-password=$MYSQL_PROXY_PASSWORD --monitor-username=monitor --monitor-password=$MONITOR_PASSWORD --syncusers
 echo "All done!"

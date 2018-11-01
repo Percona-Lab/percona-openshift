@@ -2,7 +2,7 @@ FROM centos:7
 MAINTAINER Percona Development <info@percona.com>
 
 # the numeric UID is needed for OpenShift
-RUN groupadd -g 1001 proxysql 
+RUN groupadd -g 1001 proxysql
 RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
             -c "Default Application User" proxysql
 
@@ -18,7 +18,7 @@ ADD proxysql.cnf /etc/proxysql/proxysql.cnf
 ADD proxysql-admin.cnf /tmp/proxysql-admin.cnf
 
 # removed, main branch now // a temporary hack, to be removed when it is in the main branch
-#RUN curl https://raw.githubusercontent.com/percona/proxysql-admin-tool/v1.4.9-dev/proxysql-admin --output /usr/bin/proxysql-admin
+RUN curl https://raw.githubusercontent.com/percona/proxysql-admin-tool/v1.4.11/proxysql-admin --output /usr/bin/proxysql-admin
 RUN sed -i '23 {s/^/#/}' /usr/bin/proxysql-admin
 
 COPY proxysql-entry.sh /entrypoint.sh
