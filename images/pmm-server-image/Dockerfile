@@ -2,7 +2,7 @@ FROM golang:1.11.1
 RUN go get github.com/michaloo/go-cron
 RUN mv bin/go-cron /usr/bin/go-cron
 
-FROM percona/pmm-server:1.15.0
+FROM percona/pmm-server:1.17.0
 COPY --from=0 /usr/bin/go-cron /usr/bin/go-cron
 COPY supervisord.conf-rootless /etc/supervisord.d/pmm.ini
 COPY entrypoint.sh-rootless /opt/entrypoint.sh
