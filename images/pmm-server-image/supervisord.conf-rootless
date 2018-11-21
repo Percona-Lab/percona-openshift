@@ -201,6 +201,7 @@ autorestart = true
 
 [program:pmm-managed]
 priority = 13
+environment = PMM_QAN_API_URL=http://127.0.0.1:8080/qan-api/
 command =
     /usr/sbin/pmm-managed
         -prometheus-config /etc/prometheus.yml

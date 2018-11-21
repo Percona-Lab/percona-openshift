@@ -8,6 +8,7 @@ COPY supervisord.conf-rootless /etc/supervisord.d/pmm.ini
 COPY entrypoint.sh-rootless /opt/entrypoint.sh
 
 RUN touch \
+    /etc/percona-rds-exporter.yml \
     /var/log/mysql.log \
     /var/log/consul.log \
     /var/log/nginx.log \
@@ -29,11 +30,12 @@ RUN touch \
     /var/log/pmm-managed.log
 RUN chown -R pmm:pmm \
     /etc/grafana \
-    /etc/supervisord.d/pmm.ini \
+    /etc/supervisord.d \
     /etc/prometheus.yml \
     /etc/prometheus1.yml \
     /etc/orchestrator.conf.json \
     /etc/cron.daily/purge-qan-data \
+    /var/log \
     /var/lib \
     /opt \
     /srv \
@@ -43,6 +45,8 @@ RUN chown -R pmm:pmm \
     /var/lib/grafana \
     /var/log/grafana \
     /var/log/supervisor \
+    /usr/local/percona/qan-agent \
+    /etc/percona-rds-exporter.yml \
     /var/log/mysql.log \
     /var/log/consul.log \
     /var/log/nginx.log \
@@ -64,11 +68,12 @@ RUN chown -R pmm:pmm \
     /var/log/pmm-managed.log
 RUN chmod -R g+w \
     /etc/grafana \
-    /etc/supervisord.d/pmm.ini \
+    /etc/supervisord.d \
     /etc/prometheus.yml \
     /etc/prometheus1.yml \
     /etc/orchestrator.conf.json \
     /etc/cron.daily/purge-qan-data \
+    /var/log \
     /var/lib \
     /opt \
     /srv \
@@ -78,6 +83,8 @@ RUN chmod -R g+w \
     /var/lib/grafana \
     /var/log/grafana \
     /var/log/supervisor \
+    /usr/local/percona/qan-agent \
+    /etc/percona-rds-exporter.yml \
     /var/log/mysql.log \
     /var/log/consul.log \
     /var/log/nginx.log \
