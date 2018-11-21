@@ -2,7 +2,7 @@
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
 imageRepo: "perconalab/pmm-server-openshift"
-imageTag: "latest"
+imageTag: "1.17.0"
 
 ## A choice between "kubernetes" and "openshift"
 platform: "openshift"
