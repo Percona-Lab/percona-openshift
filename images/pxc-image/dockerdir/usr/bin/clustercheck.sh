@@ -17,15 +17,24 @@ if [[ $1 == '-h' || $1 == '--help' ]];then
     exit
 fi
 
-MYSQL_USERNAME="${1-monitor}" 
-# Changed by Alexander Rubin to fix the Openshift/Kubernetes issue where we can't pass env parameters to liveness probes
-_MYSQL_PASSWORD="${2-${MONITOR_PASSWORD}}"
-MYSQL_PASSWORD="${_MYSQL_PASSWORD:-monitor}" 
-# End change
-AVAILABLE_WHEN_DONOR=${3:-1}
-ERR_FILE="${4:-/var/log/mysql/clustercheck.log}" 
-AVAILABLE_WHEN_READONLY=${5:-1}
-DEFAULTS_EXTRA_FILE=${6:-/etc/mysql/my.cnf}
+# if the disabled file is present, return error. This allows
+# admins to manually remove a node from a cluster easily.
+if [ -e "/var/tmp/clustercheck.disabled" ]; then
+    exit 1
+fi
+
+set -e
+
+if [ -f /etc/sysconfig/clustercheck ]; then
+        . /etc/sysconfig/clustercheck
+fi
+
+MYSQL_USERNAME="${MYSQL_USERNAME:-monitor}"
+MYSQL_PASSWORD="${MONITOR_PASSWORD:-monitor}"
+AVAILABLE_WHEN_DONOR=${AVAILABLE_WHEN_DONOR:-1}
+ERR_FILE="${ERR_FILE:-/var/log/mysql/clustercheck.log}"
+AVAILABLE_WHEN_READONLY=${AVAILABLE_WHEN_READONLY:-1}
+DEFAULTS_EXTRA_FILE=${DEFAULTS_EXTRA_FILE:-/etc/my.cnf}
 
 # CLUSTER_NAME to be set in enviroment
 # DISCOVERY_SERVICE to be set in enviroment
