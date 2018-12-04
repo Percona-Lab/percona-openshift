@@ -90,6 +90,7 @@ fi
 			GRANT RELOAD,PROCESS,LOCK TABLES,REPLICATION CLIENT ON *.* TO 'xtrabackup'@'localhost';
 			GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'monitor'@'localhost' IDENTIFIED BY '$MONITOR_PASSWORD';
 			GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'monitor'@'localhost';
+			GRANT PROCESS ON *.* TO 'clustercheck'@'localhost' IDENTIFIED BY '$CLUSTERCHECK_PASSWORD';
 			DROP DATABASE IF EXISTS test ;
 		EOSQL
 		

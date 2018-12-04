@@ -9,7 +9,7 @@
 # Based on the original script from Unai Rodriguez and Olaf (https://github.com/olafz/percona-clustercheck)
 #
 # Grant privileges required:
-# GRANT PROCESS ON *.* TO 'clustercheckuser'@'localhost' IDENTIFIED BY 'clustercheckpassword!';
+# GRANT PROCESS ON *.* TO 'clustercheck'@'localhost' IDENTIFIED BY 'clustercheckpassword!';
 # Changed by Alexander Rubin to fix the Openshift/Kubernetes issue where we can't pass env parameters to liveness probes
 
 if [[ $1 == '-h' || $1 == '--help' ]];then
@@ -29,8 +29,8 @@ if [ -f /etc/sysconfig/clustercheck ]; then
         . /etc/sysconfig/clustercheck
 fi
 
-MYSQL_USERNAME="${MYSQL_USERNAME:-monitor}"
-MYSQL_PASSWORD="${MONITOR_PASSWORD:-monitor}"
+MYSQL_USERNAME="${MYSQL_USERNAME:-clustercheck}"
+MYSQL_PASSWORD="${CLUSTERCHECK_PASSWORD:-clustercheckpassword!}"
 AVAILABLE_WHEN_DONOR=${AVAILABLE_WHEN_DONOR:-1}
 ERR_FILE="${ERR_FILE:-/var/log/mysql/clustercheck.log}"
 AVAILABLE_WHEN_READONLY=${AVAILABLE_WHEN_READONLY:-1}
