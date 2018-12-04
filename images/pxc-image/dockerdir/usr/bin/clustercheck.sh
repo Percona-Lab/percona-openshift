@@ -36,9 +36,6 @@ ERR_FILE="${ERR_FILE:-/var/log/mysql/clustercheck.log}"
 AVAILABLE_WHEN_READONLY=${AVAILABLE_WHEN_READONLY:-1}
 DEFAULTS_EXTRA_FILE=${DEFAULTS_EXTRA_FILE:-/etc/my.cnf}
 
-# CLUSTER_NAME to be set in enviroment
-# DISCOVERY_SERVICE to be set in enviroment
-
 #Timeout exists for instances where mysqld may be hung
 TIMEOUT=10
 
@@ -52,10 +49,6 @@ if [[ -r $DEFAULTS_EXTRA_FILE ]];then
 else
     MYSQL_CMDLINE="mysql -nNE --connect-timeout=$TIMEOUT ${EXTRA_ARGS}"
 fi
-
-ipaddr=$(hostname -i | awk ' { print $1 } ')
-hostname=$(hostname)
-
 #
 # Perform the query to check the wsrep_local_state
 #
