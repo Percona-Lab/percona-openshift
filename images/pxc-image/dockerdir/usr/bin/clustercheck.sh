@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #
 # Script to make a proxy (ie HAProxy) capable of monitoring Percona XtraDB Cluster nodes properly
 #
@@ -37,10 +37,10 @@ EXTRA_ARGS=""
 if [[ -n "$MYSQL_USERNAME" ]]; then
     EXTRA_ARGS="$EXTRA_ARGS --user=${MYSQL_USERNAME}"
 fi
-if [[ -r $DEFAULTS_EXTRA_FILE ]];then 
+if [[ -r $DEFAULTS_EXTRA_FILE ]];then
     MYSQL_CMDLINE="mysql --defaults-extra-file=$DEFAULTS_EXTRA_FILE -nNE --connect-timeout=$TIMEOUT \
                     ${EXTRA_ARGS}"
-else 
+else
     MYSQL_CMDLINE="mysql -nNE --connect-timeout=$TIMEOUT ${EXTRA_ARGS}"
 fi
 
@@ -53,31 +53,28 @@ hostname=$(hostname)
 WSREP_STATUS=($(MYSQL_PWD=${MYSQL_PASSWORD} $MYSQL_CMDLINE -e "SHOW GLOBAL STATUS LIKE 'wsrep_%';"  \
     2>${ERR_FILE} | grep -A 1 -E 'wsrep_local_state$|wsrep_cluster_status$' \
     | sed -n -e '2p'  -e '5p' | tr '\n' ' '))
- 
+
 if [[ ${WSREP_STATUS[1]} == 'Primary' && ( ${WSREP_STATUS[0]} -eq 4 || \
     ( ${WSREP_STATUS[0]} -eq 2 && $AVAILABLE_WHEN_DONOR -eq 1 ) ) ]]
-then 
-
+then
     # Check only when set to 0 to avoid latency in response.
     if [[ $AVAILABLE_WHEN_READONLY -eq 0 ]];then
         READ_ONLY=$($MYSQL_CMDLINE -e "SHOW GLOBAL VARIABLES LIKE 'read_only';" \
                     2>${ERR_FILE} | tail -1 2>>${ERR_FILE})
 
-        if [[ "${READ_ONLY}" == "ON" ]];then 
+        if [[ "${READ_ONLY}" == "ON" ]];then
             # Percona XtraDB Cluster node local state is 'Synced', but it is in
             # read-only mode. The variable AVAILABLE_WHEN_READONLY is set to 0.
             # => return HTTP 503
             # Shell return-code is 1
-	    exit 1
+            exit 1
         fi
-
     fi
     # Percona XtraDB Cluster node local state is 'Synced' => return HTTP 200
     # Shell return-code is 0
     exit 0
-else 
+else
     # Percona XtraDB Cluster node local state is not 'Synced' => return HTTP 503
     # Shell return-code is 1
     exit 1
-fi 
-
+fi
