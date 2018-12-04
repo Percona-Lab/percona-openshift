@@ -32,17 +32,17 @@ IPADDR=$(hostname -i)
 # Parse out cluster name, from service name:
 CLUSTER_NAME="$(hostname -f | cut -d'.' -f2)"
 
-[[ `hostname` =~ ^(.*?)-([0-9]+)$ ]] || exit 1
+[[ `hostname` =~ ^(.*)-([0-9]+)$ ]] || exit 1
 ordinal=${BASH_REMATCH[2]}
 rsname=${BASH_REMATCH[1]}
 
 while read -ra LINE; do
     if [[ "${LINE}" == *"${HOSTNAME}"* ]]; then
         MY_NAME=$LINE
-	continue
+        continue
     fi
     echo "read line $LINE, cluster name: $CLUSTER_NAME"
-    if [[ $LINE =~ ^(.*?)-([0-9]+) ]]; then
+    if [[ $LINE =~ ^([^.]*)-([0-9]+) ]]; then
     if [[ "$rsname" == "${BASH_REMATCH[1]}" ]] ; then
       PEERS=("${PEERS[@]}" $LINE)
     fi
