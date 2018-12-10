@@ -1,7 +1,6 @@
 #!/bin/bash
 set -x
-# cleanup dir in case volume mounted from previous instance
-rm -fr /var/lib/proxysql/*
+
 _PROXY_ADMIN_USER="${PROXY_ADMIN_USER:-admin}"
 _PROXY_ADMIN_PASSWORD=$(echo "${PROXY_ADMIN_PASSWORD:-admin}" | tr -cd '[:print:]')
 _PROXY_ADMIN_PORT="${PROXY_ADMIN_PORT:-6032}"
