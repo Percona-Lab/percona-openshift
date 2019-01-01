@@ -1,9 +1,16 @@
 #!/bin/bash
 # expect NODE_NAME to take backup
 
-backupdir=${NODE_NAME}-`date +%F-%H-%M`
-mkdir -p /backup/$backupdir
-echo "Backup to $backupdir started"
-ncat --recv-only $NODE_NAME 3307  > /backup/$backupdir/xtrabackup.stream
+set -o errexit
+set -o xtrace
+
+BACKUP_DIR=${BACKUP_DIR:-/backup/$NODE_NAME-$(date +%F-%H-%M)}
+mkdir -p "$BACKUP_DIR"
+cd "$BACKUP_DIR" || exit
+
+echo "Backup to $BACKUP_DIR started"
+ncat --recv-only "$NODE_NAME" 3307  > xtrabackup.stream
 echo "Backup finished"
 
+stat xtrabackup.stream
+md5sum xtrabackup.stream | tee md5sum.txt
