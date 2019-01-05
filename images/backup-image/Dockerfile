@@ -23,14 +23,20 @@ RUN export GNUPGHOME="$(mktemp -d)" \
 # install exact version of PS for repeatability
 ENV PXC_VERSION 5.7.23-31.31.2.el7
 ENV XTRABACKUP_VERSION 2.4.9-1.el7
+ENV KUBECTL_VERSION=v1.13.1
+ENV KUBECTL_MD5SUM=5cbe45fdb1e59466eea77a3ba34d1f23
 
 RUN yum install -y \
 		Percona-XtraDB-Cluster-client-57-${PXC_VERSION} \
 		percona-xtrabackup-24-${XTRABACKUP_VERSION} \
 		nmap \
-		curl \
 	&& yum clean all \
 	&& rm -rf /var/cache/yum
+
+RUN curl -o /usr/bin/kubectl \
+		https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
+	&& chmod +x /usr/bin/kubectl \
+	&& echo "${KUBECTL_MD5SUM} /usr/bin/kubectl" | md5sum -c -
 
 RUN install -d -o 1001 -g 0 -m 0775 /backup
 ADD backup.sh /usr/bin/
