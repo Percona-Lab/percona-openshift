@@ -9,6 +9,8 @@ sed -i "s/admin:admin/$_PROXY_ADMIN_USER:$_PROXY_ADMIN_PASSWORD/g" /etc/proxysql
 sed -i "s/0.0.0.0:6032/0.0.0.0:$_PROXY_ADMIN_PORT/g" /etc/proxysql/proxysql.cnf &>>/tmp/sed
 sed "s/PROXYSQL_USERNAME='admin'/PROXYSQL_USERNAME='$_PROXY_ADMIN_USER'/g" /etc/proxysql-admin.cnf 1<> /etc/proxysql-admin.cnf
 sed "s/PROXYSQL_PASSWORD='admin'/PROXYSQL_PASSWORD='$_PROXY_ADMIN_PASSWORD'/g" /etc/proxysql-admin.cnf 1<> /etc/proxysql-admin.cnf 
+sed "s/CLUSTER_USERNAME='admin'/CLUSTER_USERNAME='root'/g" /etc/proxysql-admin.cnf 1<> /etc/proxysql-admin.cnf
+sed "s/CLUSTER_PASSWORD='admin'/CLUSTER_PASSWORD='$MYSQL_ROOT_PASSWORD'/g" /etc/proxysql-admin.cnf 1<> /etc/proxysql-admin.cnf
 
 #cp /etc/proxysql.cnf /tmp
 
@@ -19,4 +21,4 @@ function add_peers {
 
 add_peers &
 
-/usr/bin/proxysql --initial -f -c /etc/proxysql/proxysql.cnf 
+exec /usr/bin/proxysql -f -c /etc/proxysql/proxysql.cnf
