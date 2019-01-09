@@ -53,12 +53,6 @@ spec:
         imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
-        env:
-        - name: CLUSTERCHECK_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: {{ template "percona.fullname" . }}-secrets
-              key: clustercheck
         ports:
         - containerPort: 3306
           name: mysql
@@ -132,6 +126,11 @@ spec:
             secretKeyRef:
               name: {{ template "percona.fullname" . }}-secrets
               key: monitor
+        - name: CLUSTERCHECK_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "percona.fullname" . }}-secrets
+              key: clustercheck
         volumeMounts:
         - name: datadir
           mountPath: /var/lib/mysql
