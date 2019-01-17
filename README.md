@@ -1,9 +1,7 @@
 # percona-openshift
 Set of scripts to run Percona software in OpenShift / Kubernetes / Google Cloud Kubernetes Engine
 
-<span style="color:red">
-**PLEASE CONSIDER USING [Percona XtraDB Cluster Operator](https://github.com/Percona-Lab/percona-xtradb-cluster-operator)**
-</span>
+## 🛑🛑🛑 Please consider using [Percona XtraDB Cluster Operator](https://github.com/Percona-Lab/percona-xtradb-cluster-operator)
 
 ## Submitting Bug Reports
 
