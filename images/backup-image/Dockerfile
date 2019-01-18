@@ -42,5 +42,5 @@ RUN install -d -o 1001 -g 0 -m 0775 /backup
 ADD backup.sh /usr/bin/
 
 VOLUME ["/backup"]
-USER mysql
+USER 1001
 CMD ["sleep","infinity"]
