@@ -17,9 +17,11 @@ RUN export GNUPGHOME="$(mktemp -d)" \
     && rm -rf "$GNUPGHOME" /tmp/percona-release.rpm \
     && rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY \
     && percona-release disable all \
-    && percona-release enable percona experimental
+    && percona-release enable percona release
 
-RUN yum install -y Percona-Server-client-57 proxysql vim curl sysvinit-tools
+RUN yum install -y Percona-Server-client-57 vim curl sysvinit-tools
+RUN percona-release enable percona experimental \
+    && yum install -y proxysql-2.0.3
 
 COPY proxysql.cnf /etc/proxysql/proxysql.cnf
 COPY proxysql-admin.cnf /etc/proxysql-admin.cnf
@@ -34,6 +36,9 @@ RUN chmod a+x /usr/bin/add_pxc_nodes.sh
 
 COPY add_proxysql_nodes.sh /usr/bin/add_proxysql_nodes.sh
 RUN chmod a+x /usr/bin/add_proxysql_nodes.sh
+
+COPY proxysql-admin /usr/bin/proxysql-admin
+RUN chmod a+x /usr/bin/proxysql-admin
 
 COPY peer-list /usr/bin/peer-list
 
