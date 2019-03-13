@@ -2,7 +2,7 @@ FROM golang:1.11.1
 RUN go get github.com/michaloo/go-cron
 RUN mv bin/go-cron /usr/bin/go-cron
 
-FROM percona/pmm-server:1.17.0
+FROM percona/pmm-server:1.17.1
 COPY --from=0 /usr/bin/go-cron /usr/bin/go-cron
 COPY supervisord.conf-rootless /etc/supervisord.d/pmm.ini
 COPY entrypoint.sh-rootless /opt/entrypoint.sh
@@ -44,6 +44,7 @@ RUN chown -R pmm:pmm \
     /var/lib/mysql \
     /var/lib/grafana \
     /var/log/grafana \
+    /usr/share/grafana/public/img \
     /var/log/supervisor \
     /usr/local/percona/qan-agent \
     /etc/percona-rds-exporter.yml \
@@ -82,6 +83,7 @@ RUN chmod -R g+w \
     /var/lib/mysql \
     /var/lib/grafana \
     /var/log/grafana \
+    /usr/share/grafana/public/img \
     /var/log/supervisor \
     /usr/local/percona/qan-agent \
     /etc/percona-rds-exporter.yml \
@@ -131,5 +133,5 @@ RUN install -o pmm -g pmm -m 0775 -d \
     /var/log/nginx
 RUN rm -rf /var/log/nginx/*.log
 
-
+EXPOSE 8080 8443
 USER pmm
