@@ -7,4 +7,5 @@ output_dir="$(realpath $(dirname $0))"
 
         cd /go
         go get github.com/rlmcpherson/s3gof3r/gof3r
+        go get github.com/minio/mc
     "

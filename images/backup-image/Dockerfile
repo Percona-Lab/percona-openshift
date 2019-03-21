@@ -6,6 +6,8 @@ LABEL com.percona.version="5.7"
 LABEL io.k8s.description="Percona XtraDB Cluster is an active/active high availability and high scalability open source solution for MySQL clustering"
 LABEL io.k8s.display-name="Percona XtraDB Cluster 5.7"
 
+COPY LICENSE /licenses/
+
 RUN groupadd -g 1001 mysql
 RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
         -c "Default Application User" mysql
@@ -43,7 +45,7 @@ RUN curl -o /usr/bin/kubectl \
 
 RUN install -d -o 1001 -g 0 -m 0775 /backup
 ADD backup.sh /usr/bin/
-ADD gof3r /usr/bin/
+ADD mc gof3r /usr/bin/
 
 VOLUME ["/backup"]
 USER 1001
