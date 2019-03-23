@@ -19,9 +19,15 @@ RUN export GNUPGHOME="$(mktemp -d)" \
     && percona-release disable all \
     && percona-release enable percona release
 
+# we need licenses from docs
+RUN sed -i '/nodocs/d' /etc/yum.conf
+
 RUN yum install -y Percona-Server-client-57 vim curl sysvinit-tools
 RUN percona-release enable percona experimental \
     && yum install -y proxysql-2.0.3
+
+COPY LICENSE /licenses/LICENSE.Dockerfile
+RUN cp /usr/share/doc/proxysql-2.0.3/LICENSE /licenses/LICENSE.proxysql
 
 COPY proxysql.cnf /etc/proxysql/proxysql.cnf
 COPY proxysql-admin.cnf /etc/proxysql-admin.cnf

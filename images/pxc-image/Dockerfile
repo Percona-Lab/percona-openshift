@@ -6,12 +6,13 @@ LABEL com.percona.version="5.7"
 LABEL io.k8s.description="Percona XtraDB Cluster is an active/active high availability and high scalability open source solution for MySQL clustering"
 LABEL io.k8s.display-name="Percona XtraDB Cluster 5.7"
 
-# the numeric UID is needed for OpenShift
-RUN groupadd -g 1001 mysql 
-RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
-            -c "Default Application User" mysql
+COPY LICENSE /licenses/
 
-ARG REPO_URL=http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
+RUN groupadd -g 1001 mysql
+RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
+        -c "Default Application User" mysql
+
+ARG REPO_URL=https://repo.percona.com/percona/yum/percona-release-0.1-10.noarch.rpm
 
 # Install server
 RUN yum install -y $REPO_URL \
