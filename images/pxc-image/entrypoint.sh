@@ -10,12 +10,12 @@ if [ "${1:0:1}" = '-' ]; then
 	CMDARG="$@"
 fi
 
-        # Is running in Kubernetes/OpenShift, so find all other pods
-        # belonging to the namespace
-        echo "Percona XtraDB Cluster: Finding peers"
-        K8S_SVC_NAME=$(hostname -f | cut -d"." -f2)
-        echo "Using service name: ${K8S_SVC_NAME}"
-        /usr/bin/peer-list -on-start="/usr/bin/configure-pxc.sh" -service=${K8S_SVC_NAME}
+	# Is running in Kubernetes/OpenShift, so find all other pods
+	# belonging to the namespace
+	echo "Percona XtraDB Cluster: Finding peers"
+	PXC_SERVICE=${PXC_SERVICE:-$(hostname -f | cut -d"." -f2)}
+	echo "Using service name: ${PXC_SERVICE}"
+	/usr/bin/peer-list -on-start="/usr/bin/configure-pxc.sh" -service=${PXC_SERVICE}
 
 	# Get config
 	DATADIR="$("mysqld" --verbose --wsrep_provider= --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
@@ -25,7 +25,8 @@ fi
 
 	# if we have CLUSTER_JOIN - then we do not need to perform datadir initialize
 	# the data will be copied from another node
-	WSREP_CLUSTER_ADDRESS=`cat /tmp/cluster_addr.txt`
+	cat /etc/mysql/node.cnf
+	WSREP_CLUSTER_ADDRESS=`grep wsrep_cluster_address /etc/mysql/node.cnf | sed -e 's^.*gcomm://^^'`
 	echo "Cluster address set to: $WSREP_CLUSTER_ADDRESS"
 
 	if [ -z "$WSREP_CLUSTER_ADDRESS" ]; then

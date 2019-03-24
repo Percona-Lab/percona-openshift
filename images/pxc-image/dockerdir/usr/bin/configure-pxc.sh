@@ -21,44 +21,28 @@
 # to keep the config up to date, without wrapping mysqld in a custom pid1.
 # The config location is intentionally not /etc/mysql/my.cnf because the
 # standard base image clobbers that location.
-CFG=/etc/mysql/node.cnf
 
 function join {
     local IFS="$1"; shift; echo "$*";
 }
 
-HOSTNAME=$(hostname)
-IPADDR=$(hostname -i)
-# Parse out cluster name, from service name:
+NODE_IP=$(hostname -i)
 CLUSTER_NAME="$(hostname -f | cut -d'.' -f2)"
 
-[[ `hostname` =~ ^(.*)-([0-9]+)$ ]] || exit 1
-ordinal=${BASH_REMATCH[2]}
-rsname=${BASH_REMATCH[1]}
-
 while read -ra LINE; do
-    if [[ "${LINE}" == *"${HOSTNAME}"* ]]; then
-        MY_NAME=$LINE
-        continue
-    fi
-    echo "read line $LINE, cluster name: $CLUSTER_NAME"
-    if [[ $LINE =~ ^([^.]*)-([0-9]+) ]]; then
-    if [[ "$rsname" == "${BASH_REMATCH[1]}" ]] ; then
-      PEERS=("${PEERS[@]}" $LINE)
-    fi
+    echo "read line $LINE"
+    LINE_IP=$(getent hosts "$LINE" | awk '{ print $1 }')
+    if [ "$LINE_IP" != "$NODE_IP" ]; then
+        PEERS=("${PEERS[@]}" $LINE_IP)
     fi
 done
 
-if [ "${#PEERS[@]}" = 0 ]; then
-    WSREP_CLUSTER_ADDRESS=""
-else
+if [ "${#PEERS[@]}" != 0 ]; then
     WSREP_CLUSTER_ADDRESS=$(join , "${PEERS[@]}")
 fi
-echo $WSREP_CLUSTER_ADDRESS > /tmp/cluster_addr.txt
 
-#--wsrep_cluster_name=$CLUSTER_NAME --wsrep_cluster_address="gcomm://$cluster_join" --wsrep_sst_method=xtrabackup-v2 --wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" --wsrep_node_address="$ipaddr"
-
-sed -i -e "s|^wsrep_node_address=.*$|wsrep_node_address=${IPADDR}|" ${CFG}
+CFG=/etc/mysql/node.cnf
+sed -i -e "s|^wsrep_node_address=.*$|wsrep_node_address=${NODE_IP}|" ${CFG}
 sed -i -e "s|^wsrep_cluster_name=.*$|wsrep_cluster_name=${CLUSTER_NAME}|" ${CFG}
 sed -i -e "s|^wsrep_cluster_address=.*$|wsrep_cluster_address=gcomm://${WSREP_CLUSTER_ADDRESS}|" ${CFG}
 
