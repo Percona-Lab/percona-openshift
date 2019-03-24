@@ -24,11 +24,7 @@ add_proxysql() {
     local dest=$1
     local host=$2
     proxysql_admin_exec "$dest" "
-        DELETE FROM proxysql_servers WHERE hostname='$host' and port='${PROXY_ADMIN_PORT:-6032}';
         INSERT INTO proxysql_servers (hostname,port) VALUES ('$host','${PROXY_ADMIN_PORT:-6032}');
-        SELECT * FROM proxysql_servers;
-        LOAD PROXYSQL SERVERS TO RUNTIME;
-        SAVE PROXYSQL SERVERS TO DISK;
     "
 }
 
@@ -36,10 +32,18 @@ function main() {
     echo "Running $0"
     wait_for_proxysql "127.0.0.1"
 
+    proxysql_admin_exec "127.0.0.1" "
+        DELETE FROM proxysql_servers;
+    "
     while read -ra LINE; do
         echo "Read line $LINE"
         add_proxysql "127.0.0.1" "$LINE"
     done
+    proxysql_admin_exec "127.0.0.1" "
+        SELECT * FROM proxysql_servers;
+        LOAD PROXYSQL SERVERS TO RUNTIME;
+        SAVE PROXYSQL SERVERS TO DISK;
+    "
 
     echo "All done!"
 }
