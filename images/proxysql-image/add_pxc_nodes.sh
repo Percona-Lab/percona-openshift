@@ -37,8 +37,10 @@ function main() {
         echo "Could not find PEERS ..."
         exit
     fi
+    service=$(echo $first_host | cut -d . -f 2-)
 
-    wait_for_mysql $first_host
+    sleep 15s # wait for evs.inactive_timeout
+    wait_for_mysql $service
     wait_for_proxy
 
     proxysql-admin --config-file=/etc/proxysql-admin.cnf --cluster-hostname=$first_host --disable --enable --syncusers
