@@ -35,11 +35,12 @@ RUN sed -i '/nodocs/d' /etc/yum.conf
 RUN yum update -y \
     && yum install -y \
 #        --enablerepo=rhel-7-server-extras-rpms \
-        Percona-XtraDB-Cluster-client-57-${PXC_VERSION} \
+        Percona-XtraDB-Cluster-57-${PXC_VERSION} \
+        Percona-XtraDB-Cluster-garbd-57-${PXC_VERSION} \
         percona-xtrabackup-24-${XTRABACKUP_VERSION} \
-        nmap \
+        socat \
     && yum clean all \
-    && rm -rf /var/cache/yum
+    && rm -rf /var/cache/yum /var/lib/mysql
 
 COPY LICENSE /licenses/LICENSE.Dockerfile
 RUN cp /usr/share/doc/Percona-XtraDB-Cluster-server-57-*/COPYING /licenses/LICENSE.Percona-XtraDB-Cluster \
@@ -52,8 +53,8 @@ RUN curl -o /usr/bin/kubectl \
     && echo "${KUBECTL_MD5SUM} /usr/bin/kubectl" | md5sum -c -
 
 RUN install -d -o 1001 -g 0 -m 0775 /backup
-ADD backup.sh /usr/bin/
 ADD mc gof3r /usr/bin/
+ADD backup.sh get-pxc-state peer-list /usr/bin/
 
 VOLUME ["/backup"]
 USER 1001

@@ -135,8 +135,4 @@ fi
 		#rm -fr $DATADIR/*
 	fi
 
-#--log-error=${DATADIR}error.log
-ncat --listen --keep-open --send-only --max-conns=1 3307 -c \
-            "mysql -uroot -p$MYSQL_ROOT_PASSWORD -e 'set global wsrep_desync=on' > /dev/null 2>&1;  xtrabackup --backup --slave-info --galera-info --stream=xbstream --host=127.0.0.1 --user=xtrabackup --password=$XTRABACKUP_PASSWORD --target-dir=/tmp; mysql -uroot -p$MYSQL_ROOT_PASSWORD -e 'set global wsrep_desync=off' > /dev/null 2>&1" > /tmp/ncat_xtrabackup.log &
-
-exec mysqld --user=mysql --wsrep_sst_auth="xtrabackup:$XTRABACKUP_PASSWORD" $CMDARG
+exec mysqld --user=mysql $CMDARG
