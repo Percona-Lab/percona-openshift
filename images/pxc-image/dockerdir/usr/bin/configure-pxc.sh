@@ -45,6 +45,21 @@ CFG=/etc/mysql/node.cnf
 sed -i -e "s|^wsrep_node_address=.*$|wsrep_node_address=${NODE_IP}|" ${CFG}
 sed -i -e "s|^wsrep_cluster_name=.*$|wsrep_cluster_name=${CLUSTER_NAME}|" ${CFG}
 sed -i -e "s|^wsrep_cluster_address=.*$|wsrep_cluster_address=gcomm://${WSREP_CLUSTER_ADDRESS}|" ${CFG}
+sed -i -e "s|^wsrep_sst_auth=.*$|wsrep_sst_auth='xtrabackup:$XTRABACKUP_PASSWORD'|" ${CFG}
+
+CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+if [ -f /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt ]; then
+    CA=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+fi
+if [ -f /etc/mysql/ssl/ca.crt ]; then
+    CA=/etc/mysql/ssl/ca.crt
+fi
+
+KEY=/etc/mysql/ssl/tls.key
+CERT=/etc/mysql/ssl/tls.crt
+if [ -f $CA -a -f $KEY -a -f $CERT ]; then
+    sed -i "/^\[mysqld\]/a pxc-encrypt-cluster-traffic=ON\nssl-ca=$CA\nssl-key=$KEY\nssl-cert=$CERT" ${CFG}
+fi
 
 # don't need a restart, we're just writing the conf in case there's an
 # unexpected restart on the node.
