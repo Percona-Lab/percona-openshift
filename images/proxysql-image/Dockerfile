@@ -22,7 +22,7 @@ RUN export GNUPGHOME="$(mktemp -d)" \
 # we need licenses from docs
 RUN sed -i '/nodocs/d' /etc/yum.conf
 
-RUN yum install -y Percona-Server-client-57 vim curl sysvinit-tools
+RUN yum install -y Percona-Server-client-57 which
 RUN percona-release enable percona experimental \
     && yum install -y proxysql-2.0.3
 

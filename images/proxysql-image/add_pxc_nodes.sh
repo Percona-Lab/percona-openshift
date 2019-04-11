@@ -19,10 +19,16 @@ function wait_for_mysql() {
     done
 }
 
+function proxysql_admin_exec() {
+  local server="$1"
+  local query="$2"
+  MYSQL_PWD=${PROXY_ADMIN_PASSWORD:-admin} timeout 600 mysql -h${server} -P6032 -u${PROXY_ADMIN_USER:-admin} -s -NB -e "${query}"
+}
+
 function wait_for_proxy() {
     local h=127.0.0.1
     echo "Waiting for host $h to be online..."
-    while [ "$(MYSQL_PWD=${PROXY_ADMIN_PASSWORD:-admin} mysql -h$h -P6032 -u${PROXY_ADMIN_USER:-admin} -s -NB -e 'select 1')" != "1" ]
+    while [ "$(proxysql_admin_exec "$h" 'select 1')" != "1" ]
     do
         echo "ProxySQL is not up yet... sleeping ..."
         sleep 1
@@ -43,7 +49,12 @@ function main() {
     wait_for_mysql $service
     wait_for_proxy
 
-    proxysql-admin --config-file=/etc/proxysql-admin.cnf --cluster-hostname=$first_host --disable --enable --syncusers
+    SSL_ARG=""
+    if [ $(proxysql_admin_exec "127.0.0.1" 'SELECT variable_value FROM global_variables WHERE variable_name="mysql-have_ssl"') = "true" ]; then
+        SSL_ARG="--use-ssl"
+    fi
+
+    proxysql-admin --config-file=/etc/proxysql-admin.cnf --cluster-hostname=$first_host --disable --enable --syncusers $SSL_ARG
     echo "All done!"
 }
 
