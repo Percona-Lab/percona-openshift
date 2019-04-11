@@ -34,7 +34,9 @@ RUN yum update -y \
 #        --enablerepo=rhel-7-server-extras-rpms \
         Percona-XtraDB-Cluster-57-${PXC_VERSION} \
         jemalloc \
-        nmap \
+        socat \
+        openssl \
+        shadow-utils \
     && yum clean all \
     && rm -rf /var/cache/yum /var/lib/mysql
 
