@@ -1,12 +1,12 @@
 FROM centos:7
+#FROM registry.access.redhat.com/rhel7/rhel
 MAINTAINER Percona Development <info@percona.com>
-LABEL vendor=Percona
-LABEL com.percona.package="Percona XtraDB Cluster"
-LABEL com.percona.version="5.7"
-LABEL io.k8s.description="Percona XtraDB Cluster is an active/active high availability and high scalability open source solution for MySQL clustering"
-LABEL io.k8s.display-name="Percona XtraDB Cluster 5.7"
 
-COPY LICENSE /licenses/
+LABEL name="Percona XtraDB Cluster Backup" \
+      release="5.7" \
+      vendor="Percona" \
+      summary="Percona XtraDB Cluster is an active/active high availability and high scalability open source solution for MySQL clustering" \
+      description="Percona XtraDB Cluster is a high availability solution that helps enterprises avoid downtime and outages and meet expected customer experience."
 
 RUN groupadd -g 1001 mysql
 RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
@@ -16,27 +16,35 @@ RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
 RUN export GNUPGHOME="$(mktemp -d)" \
     && gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A \
     && gpg --export --armor 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A > ${GNUPGHOME}/RPM-GPG-KEY-Percona \
-    && rpmkeys --import ${GNUPGHOME}/RPM-GPG-KEY-Percona /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 \
+    && rpmkeys --import ${GNUPGHOME}/RPM-GPG-KEY-Percona \
     && curl -L -o /tmp/percona-release.rpm https://repo.percona.com/percona/yum/percona-release-0.1-10.noarch.rpm \
     && rpmkeys --checksig /tmp/percona-release.rpm \
     && yum install -y /tmp/percona-release.rpm \
     && rm -rf "$GNUPGHOME" /tmp/percona-release.rpm \
-    && rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY \
-    && percona-release disable all \
-    && percona-release enable original release
+    && rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 # install exact version of PS for repeatability
-ENV PXC_VERSION 5.7.23-31.31.2.el7
+ENV PXC_VERSION 5.7.25-31.35.1.el7
 ENV XTRABACKUP_VERSION 2.4.9-1.el7
 ENV KUBECTL_VERSION=v1.13.1
 ENV KUBECTL_MD5SUM=5cbe45fdb1e59466eea77a3ba34d1f23
 
-RUN yum install -y \
+# we need licenses from docs
+RUN sed -i '/nodocs/d' /etc/yum.conf
+
+RUN yum update -y \
+    && yum install -y \
+#        --enablerepo=rhel-7-server-extras-rpms \
         Percona-XtraDB-Cluster-client-57-${PXC_VERSION} \
         percona-xtrabackup-24-${XTRABACKUP_VERSION} \
         nmap \
     && yum clean all \
     && rm -rf /var/cache/yum
+
+COPY LICENSE /licenses/LICENSE.Dockerfile
+RUN cp /usr/share/doc/Percona-XtraDB-Cluster-server-57-*/COPYING /licenses/LICENSE.Percona-XtraDB-Cluster \
+    && cp /usr/share/doc/percona-xtradb-cluster-galera/COPYING /licenses/LICENSE.galera \
+    && cp /usr/share/doc/percona-xtradb-cluster-galera/LICENSE.* /licenses/
 
 RUN curl -o /usr/bin/kubectl \
         https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
