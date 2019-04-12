@@ -49,6 +49,9 @@ function request_streaming() {
             --group "$PXC_SERVICE" \
             $GARBD_OPTS \
             --sst "xtrabackup-v2:$LOCAL_IP:4444/xtrabackup_sst//1"
+
+    timeout -k 110 100 \
+        socat -u "$SOCAT_OPTS" stdio
 }
 
 function backup_volume() {
@@ -58,12 +61,13 @@ function backup_volume() {
 
     echo "Backup to $BACKUP_DIR started"
     request_streaming
-    timeout -k 110 100 socat -u "$SOCAT_OPTS" stdio \
+    socat -u "$SOCAT_OPTS" stdio \
         > xtrabackup.stream
     echo "Backup finished"
 
     stat xtrabackup.stream
-    if [ $(stat -c%s xtrabackup.stream) = 0 ]; then
+    if (( $(stat -c%s xtrabackup.stream) < 50000000 )); then
+        echo empty backup
         exit 1
     fi
     md5sum xtrabackup.stream | tee md5sum.txt
@@ -75,13 +79,14 @@ function backup_s3() {
     echo "Backup to s3://$S3_BUCKET/$S3_BUCKET_PATH started"
     mc -C /tmp/mc config host add dest "${ENDPOINT_URL:-https://s3.amazonaws.com}" "$ACCESS_KEY_ID" "$SECRET_ACCESS_KEY"
     request_streaming
-    timeout -k 110 100 socat -u "$SOCAT_OPTS" stdio \
+    socat -u "$SOCAT_OPTS" stdio \
         | mc -C /tmp/mc pipe "dest/$S3_BUCKET/$S3_BUCKET_PATH"
     echo "Backup finished"
 
     mc -C /tmp/mc stat "dest/$S3_BUCKET/$S3_BUCKET_PATH"
-    s3_size=$(mc -C /tmp/mc stat "dest/$S3_BUCKET/$S3_BUCKET_PATH" | grep "^Size" | awk '{print$3}')
-    if [ $s3_size = "0B" ]; then
+    s3_size=$(mc -C /tmp/mc stat --json "dest/$S3_BUCKET/$S3_BUCKET_PATH" | sed -e 's/.*"size":\([0-9]*\).*/\1/')
+    if (( $s3_size < 50000000 )); then
+        echo empty backup
         exit 1
     fi
 }
