@@ -2,11 +2,11 @@ FROM centos:7
 #FROM registry.access.redhat.com/rhel7/rhel
 MAINTAINER Percona Development <info@percona.com>
 
-LABEL name="Percona XtraDB Cluster Backup" \
-      release="5.7" \
+LABEL name="Percona XtraBackup" \
+      release="2.4" \
       vendor="Percona" \
-      summary="Percona XtraDB Cluster is an active/active high availability and high scalability open source solution for MySQL clustering" \
-      description="Percona XtraDB Cluster is a high availability solution that helps enterprises avoid downtime and outages and meet expected customer experience."
+      summary="Percona XtraBackup is an open-source hot backup utility for MySQL - based servers that doesn’t lock your database during the backup" \
+      description="Percona XtraBackup works with MySQL, MariaDB, and Percona Server. It supports completely non-blocking backups of InnoDB, XtraDB, and HailDB storage engines. In addition, it can back up the following storage engines by briefly pausing writes at the end of the backup: MyISAM, Merge, and Archive, including partitioned tables, triggers, and database options."
 
 RUN groupadd -g 1001 mysql
 RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
@@ -50,7 +50,9 @@ RUN cp /usr/share/doc/Percona-XtraDB-Cluster-server-57-*/COPYING /licenses/LICEN
 RUN curl -o /usr/bin/kubectl \
         https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
     && chmod +x /usr/bin/kubectl \
-    && echo "${KUBECTL_MD5SUM} /usr/bin/kubectl" | md5sum -c -
+    && echo "${KUBECTL_MD5SUM} /usr/bin/kubectl" | md5sum -c - \
+    && curl -o /licenses/LICENSE.kubectl \
+        https://raw.githubusercontent.com/kubernetes/kubectl/master/LICENSE
 
 RUN install -d -o 1001 -g 0 -m 0775 /backup
 ADD mc gof3r /usr/bin/

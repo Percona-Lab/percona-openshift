@@ -1,7 +1,13 @@
 FROM centos:7
+#FROM registry.access.redhat.com/rhel7/rhel
 MAINTAINER Percona Development <info@percona.com>
 
-# the numeric UID is needed for OpenShift
+LABEL name="ProxySQL" \
+      release="2.0" \
+      vendor="Percona" \
+      summary="High-performance MySQL proxy with a GPL license" \
+      description="ProxySQL is a high performance, high availability, protocol aware proxy for MySQL and forks (like Percona Server and MariaDB). All the while getting the unlimited freedom that comes with a GPL license."
+
 RUN groupadd -g 1001 proxysql
 RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
             -c "Default Application User" proxysql
