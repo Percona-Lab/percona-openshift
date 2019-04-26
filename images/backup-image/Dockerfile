@@ -26,8 +26,8 @@ RUN export GNUPGHOME="$(mktemp -d)" \
 # install exact version of PS for repeatability
 ENV PXC_VERSION 5.7.25-31.35.1.el7
 ENV XTRABACKUP_VERSION 2.4.9-1.el7
-ENV KUBECTL_VERSION=v1.13.1
-ENV KUBECTL_MD5SUM=5cbe45fdb1e59466eea77a3ba34d1f23
+ENV KUBECTL_VERSION=v1.14.1
+ENV KUBECTL_MD5SUM=223668b6d47121a9011645b04f5ef349
 
 # we need licenses from docs
 RUN sed -i '/nodocs/d' /etc/yum.conf
