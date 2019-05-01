@@ -47,7 +47,7 @@ RUN cp /usr/share/doc/Percona-XtraDB-Cluster-server-57-*/COPYING /licenses/LICEN
 
 COPY dockerdir /
 RUN mkdir -p /etc/mysql/conf.d/ /var/log/mysql /var/lib/mysql \
-    && chown -R 1001:0 /etc/mysql/ /var/log/mysql /var/lib/mysql \
+    && chown -R 1001:1001 /etc/mysql/ /var/log/mysql /var/lib/mysql \
     && chmod -R g=u /etc/mysql/ /var/log/mysql /var/lib/mysql
 
 RUN echo '!include /etc/mysql/node.cnf' > /etc/my.cnf
