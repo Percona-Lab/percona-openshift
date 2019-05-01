@@ -38,7 +38,7 @@ RUN cp /usr/share/doc/proxysql-2.0.3/LICENSE /licenses/LICENSE.proxysql
 COPY proxysql.cnf /etc/proxysql/proxysql.cnf
 COPY proxysql-admin.cnf /etc/proxysql-admin.cnf
 RUN chmod 664 /etc/proxysql/proxysql.cnf /etc/proxysql-admin.cnf \
-    && chown 1001:0 /etc/proxysql/proxysql.cnf /etc/proxysql-admin.cnf
+    && chown 1001:1001 /etc/proxysql/proxysql.cnf /etc/proxysql-admin.cnf
 
 COPY proxysql-entry.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
