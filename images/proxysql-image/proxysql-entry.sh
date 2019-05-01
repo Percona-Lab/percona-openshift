@@ -36,11 +36,22 @@ CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 if [ -f /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt ]; then
     CA=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
 fi
-if [ -f /etc/proxysql/ssl/ca.crt ]; then
-    CA=/etc/proxysql/ssl/ca.crt
+SSL_DIR=${SSL_DIR:-/etc/proxysql/ssl}
+if [ -f ${SSL_DIR}/ca.crt ]; then
+    CA=${SSL_DIR}/ca.crt
 fi
-KEY=/etc/proxysql/ssl/tls.key
-CERT=/etc/proxysql/ssl/tls.crt
+SSL_INTERNAL_DIR=${SSL_INTERNAL_DIR:-/etc/proxysql/ssl-internal}
+if [ -f ${SSL_INTERNAL_DIR}/ca.crt ]; then
+    CA=${SSL_INTERNAL_DIR}/ca.crt
+fi
+
+KEY=${SSL_DIR}/tls.key
+CERT=${SSL_DIR}/tls.crt
+if [ -f ${SSL_INTERNAL_DIR}/tls.key -a -f ${SSL_INTERNAL_DIR}/tls.crt ]; then
+    KEY=${SSL_INTERNAL_DIR}/tls.key
+    CERT=${SSL_INTERNAL_DIR}/tls.crt
+fi
+
 if [ -f $CA -a -f $KEY -a -f $CERT ]; then
     wait_for_mysql "$PXC_SERVICE"
     cipher=$(mysql_root_exec "$PXC_SERVICE" 'SHOW SESSION STATUS LIKE "Ssl_cipher"' | awk '{print$2}')
@@ -52,5 +63,14 @@ if [ -f $CA -a -f $KEY -a -f $CERT ]; then
     sed "s^ssl_p2s_cert=\"\"^ssl_p2s_cert=\"$CERT\"^"       ${PROXY_CFG} 1<> ${PROXY_CFG}
     sed "s^ssl_p2s_cipher=\"\"^ssl_p2s_cipher=\"$cipher\"^" ${PROXY_CFG} 1<> ${PROXY_CFG}
 fi
+
+if [ -f ${SSL_DIR}/tls.key -a -f ${SSL_DIR}/tls.crt ]; then
+    cp ${SSL_DIR}/tls.key /var/lib/proxysql/proxysql-key.pem
+    cp ${SSL_DIR}/tls.crt /var/lib/proxysql/proxysql-cert.pem
+fi
+if [ -f ${SSL_DIR}/ca.crt ]; then
+    cp ${SSL_DIR}/ca.crt /var/lib/proxysql/proxysql-ca.pem
+fi
+
 
 exec "$@"
