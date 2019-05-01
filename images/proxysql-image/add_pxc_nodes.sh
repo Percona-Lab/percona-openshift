@@ -51,10 +51,11 @@ function main() {
 
     SSL_ARG=""
     if [ $(proxysql_admin_exec "127.0.0.1" 'SELECT variable_value FROM global_variables WHERE variable_name="mysql-have_ssl"') = "true" ]; then
-        SSL_ARG="--use-ssl"
+        SSL_ARG="--use-ssl=yes"
     fi
 
-    proxysql-admin --config-file=/etc/proxysql-admin.cnf --cluster-hostname=$first_host --disable --enable --syncusers $SSL_ARG
+    proxysql-admin --config-file=/etc/proxysql-admin.cnf --cluster-hostname=$first_host --enable --update-cluster --remove-all-servers $SSL_ARG
+    proxysql-admin --config-file=/etc/proxysql-admin.cnf --cluster-hostname=$first_host --syncusers $SSL_ARG
     echo "All done!"
 }
 
