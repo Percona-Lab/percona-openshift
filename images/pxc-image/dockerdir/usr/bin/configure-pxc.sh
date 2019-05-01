@@ -51,12 +51,22 @@ CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 if [ -f /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt ]; then
     CA=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
 fi
-if [ -f /etc/mysql/ssl/ca.crt ]; then
-    CA=/etc/mysql/ssl/ca.crt
+SSL_DIR=${SSL_DIR:-/etc/mysql/ssl}
+if [ -f ${SSL_DIR}/ca.crt ]; then
+    CA=${SSL_DIR}/ca.crt
+fi
+SSL_INTERNAL_DIR=${SSL_INTERNAL_DIR:-/etc/mysql/ssl-internal}
+if [ -f ${SSL_INTERNAL_DIR}/ca.crt ]; then
+    CA=${SSL_INTERNAL_DIR}/ca.crt
 fi
 
-KEY=/etc/mysql/ssl/tls.key
-CERT=/etc/mysql/ssl/tls.crt
+KEY=${SSL_DIR}/tls.key
+CERT=${SSL_DIR}/tls.crt
+if [ -f ${SSL_INTERNAL_DIR}/tls.key -a -f ${SSL_INTERNAL_DIR}/tls.crt ]; then
+    KEY=${SSL_INTERNAL_DIR}/tls.key
+    CERT=${SSL_INTERNAL_DIR}/tls.crt
+fi
+
 if [ -f $CA -a -f $KEY -a -f $CERT ]; then
     sed "/^\[mysqld\]/a pxc-encrypt-cluster-traffic=ON\nssl-ca=$CA\nssl-key=$KEY\nssl-cert=$CERT" ${CFG} 1<> ${CFG}
 fi
