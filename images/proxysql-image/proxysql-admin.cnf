@@ -20,3 +20,9 @@ export WITH_CLUSTER_APP_USER=0
 
 # ProxySQL read/write configuration mode.
 export MODE="singlewrite"
+
+# set id for hostgroups
+export READER_HOSTGROUP_ID=10
+export WRITER_HOSTGROUP_ID=11
+export BACKUP_WRITER_HOSTGROUP_ID=12
+export OFFLINE_HOSTGROUP_ID=13
