@@ -42,10 +42,10 @@ if [ "${#PEERS[@]}" != 0 ]; then
 fi
 
 CFG=/etc/mysql/node.cnf
-sed -i -e "s|^wsrep_node_address=.*$|wsrep_node_address=${NODE_IP}|" ${CFG}
-sed -i -e "s|^wsrep_cluster_name=.*$|wsrep_cluster_name=${CLUSTER_NAME}|" ${CFG}
-sed -i -e "s|^wsrep_cluster_address=.*$|wsrep_cluster_address=gcomm://${WSREP_CLUSTER_ADDRESS}|" ${CFG}
-sed -i -e "s|^wsrep_sst_auth=.*$|wsrep_sst_auth='xtrabackup:$XTRABACKUP_PASSWORD'|" ${CFG}
+sed "s|^wsrep_node_address=.*$|wsrep_node_address=${NODE_IP}|" ${CFG} 1<> ${CFG}
+sed "s|^wsrep_cluster_name=.*$|wsrep_cluster_name=${CLUSTER_NAME}|" ${CFG} 1<> ${CFG}
+sed "s|^wsrep_cluster_address=.*$|wsrep_cluster_address=gcomm://${WSREP_CLUSTER_ADDRESS}|" ${CFG} 1<> ${CFG}
+sed "s|^wsrep_sst_auth=.*$|wsrep_sst_auth='xtrabackup:$XTRABACKUP_PASSWORD'|" ${CFG} 1<> ${CFG}
 
 CA=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 if [ -f /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt ]; then
@@ -58,7 +58,7 @@ fi
 KEY=/etc/mysql/ssl/tls.key
 CERT=/etc/mysql/ssl/tls.crt
 if [ -f $CA -a -f $KEY -a -f $CERT ]; then
-    sed -i "/^\[mysqld\]/a pxc-encrypt-cluster-traffic=ON\nssl-ca=$CA\nssl-key=$KEY\nssl-cert=$CERT" ${CFG}
+    sed "/^\[mysqld\]/a pxc-encrypt-cluster-traffic=ON\nssl-ca=$CA\nssl-key=$KEY\nssl-cert=$CERT" ${CFG} 1<> ${CFG}
 fi
 
 # don't need a restart, we're just writing the conf in case there's an

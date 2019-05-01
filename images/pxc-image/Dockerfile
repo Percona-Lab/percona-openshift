@@ -45,16 +45,13 @@ RUN cp /usr/share/doc/Percona-XtraDB-Cluster-server-57-*/COPYING /licenses/LICEN
     && cp /usr/share/doc/percona-xtradb-cluster-galera/COPYING /licenses/LICENSE.galera \
     && cp /usr/share/doc/percona-xtradb-cluster-galera/LICENSE.* /licenses/
 
+COPY dockerdir /
 RUN mkdir -p /etc/mysql/conf.d/ /var/log/mysql /var/lib/mysql \
     && chown -R 1001:0 /etc/mysql/ /var/log/mysql /var/lib/mysql \
     && chmod -R g=u /etc/mysql/ /var/log/mysql /var/lib/mysql
 
-ADD node.cnf /etc/mysql/node.cnf
 RUN echo '!include /etc/mysql/node.cnf' > /etc/my.cnf
 RUN echo '!includedir /etc/mysql/conf.d/' >> /etc/my.cnf
-
-COPY entrypoint.sh /entrypoint.sh
-COPY dockerdir /
 
 EXPOSE 3306 4567 4568
 
