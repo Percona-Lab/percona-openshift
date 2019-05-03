@@ -22,7 +22,7 @@ admin_variables =
 
 mysql_variables=
 {
-	server_version="Percona XtraDB Cluster Operator"
+	server_version="Percona XtraDB Cluster Operator 0.4.0"
 	monitor_galera_healthcheck_interval=1000
 	threads=2
 	max_connections=2048
