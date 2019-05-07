@@ -39,7 +39,6 @@ RUN yum update -y \
         Percona-XtraDB-Cluster-garbd-57-${PXC_VERSION} \
         percona-xtrabackup-24-${XTRABACKUP_VERSION} \
         socat \
-        nmap \
     && yum clean all \
     && rm -rf /var/cache/yum /var/lib/mysql
 
@@ -56,8 +55,8 @@ RUN curl -o /usr/bin/kubectl \
         https://raw.githubusercontent.com/kubernetes/kubectl/master/LICENSE
 
 RUN install -d -o 1001 -g 0 -m 0775 /backup
-ADD mc gof3r /usr/bin/
-ADD recovery-s3.sh recovery-pvc.sh backup.sh get-pxc-state peer-list /usr/bin/
+COPY mc gof3r /usr/bin/
+COPY recovery-*.sh backup.sh get-pxc-state peer-list /usr/bin/
 
 VOLUME ["/backup"]
 USER 1001
