@@ -36,9 +36,9 @@ function check_ssl() {
         CERT=${SSL_INTERNAL_DIR}/tls.crt
     fi
 
-    if [ -f $CA -a -f $KEY -a -f $CERT ]; then
-        GARBD_OPTS="-o socket.ssl_ca=$CA;socket.ssl_cert=$CERT;socket.ssl_key=$KEY;socket.ssl_cipher="
-        SOCAT_OPTS="openssl-listen:4444,reuseaddr,cert=$CERT,key=$KEY,cafile=$CA,verify=1,retry=30"
+    if [ -f "$CA" -a -f "$KEY" -a -f "$CERT" ]; then
+        GARBD_OPTS="-o socket.ssl_ca=${CA};socket.ssl_cert=${CERT};socket.ssl_key=${KEY};socket.ssl_cipher="
+        SOCAT_OPTS="openssl-listen:4444,reuseaddr,cert=${CERT},key=${KEY},cafile=${CA},verify=1,retry=30"
     fi
 }
 
@@ -87,15 +87,15 @@ function backup_s3() {
     S3_BUCKET_PATH=${S3_BUCKET_PATH:-$PXC_SERVICE-$(date +%F-%H-%M)-xtrabackup.stream}
 
     echo "Backup to s3://$S3_BUCKET/$S3_BUCKET_PATH started"
-    mc -C /tmp/mc config host add dest "${ENDPOINT_URL:-https://s3.amazonaws.com}" "$ACCESS_KEY_ID" "$SECRET_ACCESS_KEY"
+    mc -C /tmp/mc config host add dest "${ENDPOINT:-https://s3.amazonaws.com}" "$ACCESS_KEY_ID" "$SECRET_ACCESS_KEY"
     request_streaming
     socat -u "$SOCAT_OPTS" stdio \
-        | mc -C /tmp/mc pipe "dest/$S3_BUCKET/$S3_BUCKET_PATH"
+        | xbcloud put --storage=s3 --parallel=10 --md5 --s3-bucket="$S3_BUCKET" "$S3_BUCKET_PATH"
     echo "Backup finished"
 
-    mc -C /tmp/mc stat "dest/$S3_BUCKET/$S3_BUCKET_PATH"
-    s3_size=$(mc -C /tmp/mc stat --json "dest/$S3_BUCKET/$S3_BUCKET_PATH" | sed -e 's/.*"size":\([0-9]*\).*/\1/')
-    if (( $s3_size < 50000000 )); then
+    mc -C /tmp/mc stat "dest/$S3_BUCKET/$S3_BUCKET_PATH.md5"
+    s3_size=$(mc -C /tmp/mc stat --json "dest/$S3_BUCKET/$S3_BUCKET_PATH.md5" | sed -e 's/.*"size":\([0-9]*\).*/\1/')
+    if (( $s3_size < 25000 )); then
         echo empty backup
         exit 1
     fi
