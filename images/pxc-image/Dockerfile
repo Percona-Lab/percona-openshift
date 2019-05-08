@@ -1,5 +1,4 @@
-FROM centos:7
-#FROM registry.access.redhat.com/rhel7/rhel
+FROM registry.access.redhat.com/ubi7/ubi
 MAINTAINER Percona Development <info@percona.com>
 
 LABEL name="Percona XtraDB Cluster" \
@@ -19,7 +18,7 @@ RUN export GNUPGHOME="$(mktemp -d)" \
     && rpmkeys --import ${GNUPGHOME}/RPM-GPG-KEY-Percona \
     && curl -L -o /tmp/percona-release.rpm https://repo.percona.com/percona/yum/percona-release-0.1-10.noarch.rpm \
     && rpmkeys --checksig /tmp/percona-release.rpm \
-    && yum install -y /tmp/percona-release.rpm \
+    && yum install -y --disableplugin=subscription-manager /tmp/percona-release.rpm \
     && rm -rf "$GNUPGHOME" /tmp/percona-release.rpm \
     && rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
@@ -29,14 +28,17 @@ ENV PXC_VERSION 5.7.25-31.35.1.el7
 # we need licenses from docs
 RUN sed -i '/nodocs/d' /etc/yum.conf
 
-RUN yum update -y \
-    && yum install -y \
-#        --enablerepo=rhel-7-server-extras-rpms \
+RUN yum install -y --disableplugin=subscription-manager \
+        http://mirror.centos.org/centos/7/os/x86_64/Packages/numactl-libs-2.0.9-7.el7.x86_64.rpm \
+        http://mirror.centos.org/centos/7/extras/x86_64/Packages/libev-4.15-7.el7.x86_64.rpm
+RUN yum update -y --disableplugin=subscription-manager \
+    && yum install -y --disableplugin=subscription-manager \
         Percona-XtraDB-Cluster-57-${PXC_VERSION} \
         jemalloc \
         socat \
         openssl \
         shadow-utils \
+        hostname \
     && yum clean all \
     && rm -rf /var/cache/yum /var/lib/mysql
 
