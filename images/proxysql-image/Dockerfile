@@ -1,5 +1,4 @@
-FROM centos:7
-#FROM registry.access.redhat.com/rhel7/rhel
+FROM registry.access.redhat.com/ubi7/ubi
 MAINTAINER Percona Development <info@percona.com>
 
 LABEL name="ProxySQL" \
@@ -19,24 +18,23 @@ RUN export GNUPGHOME="$(mktemp -d)" \
     && rpmkeys --import ${GNUPGHOME}/RPM-GPG-KEY-Percona \
     && curl -L -o /tmp/percona-release.rpm https://repo.percona.com/percona/yum/percona-release-0.1-10.noarch.rpm \
     && rpmkeys --checksig /tmp/percona-release.rpm \
-    && yum install -y /tmp/percona-release.rpm \
+    && yum install -y --disableplugin=subscription-manager /tmp/percona-release.rpm \
     && rm -rf "$GNUPGHOME" /tmp/percona-release.rpm \
     && rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 # install exact version of PS for repeatability
 ENV PROXYSQL_VERSION 2.0.3-1.1.el7
+ENV PS_VERSION 5.7.25-28.1.el7
 
 # we need licenses from docs
 RUN sed -i '/nodocs/d' /etc/yum.conf
 
-RUN yum update -y \
-    && yum install -y \
-#        --enablerepo=rhel-7-server-extras-rpms \
-        Percona-Server-client-57 \
-        Percona-Server-shared-57 \
-        which
-RUN percona-release enable original testing \
-    && yum install -y proxysql2-${PROXYSQL_VERSION} \
+RUN yum update -y --disableplugin=subscription-manager \
+    && yum install -y --disableplugin=subscription-manager \
+        Percona-Server-client-57-${PS_VERSION} \
+        Percona-Server-shared-57-${PS_VERSION} \
+        which \
+        proxysql2-${PROXYSQL_VERSION} \
     && yum clean all \
     && rm -rf /var/cache/yum /var/lib/mysql
 
@@ -63,7 +61,6 @@ RUN install -o 1001 -g 0 -m 775 -d /etc/proxysql /var/lib/proxysql
 VOLUME /var/lib/proxysql
 
 EXPOSE 3306 6032
-ONBUILD RUN yum update -y
 
 ENTRYPOINT ["/entrypoint.sh"]
 USER 1001
