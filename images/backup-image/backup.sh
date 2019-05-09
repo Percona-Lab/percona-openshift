@@ -37,7 +37,7 @@ function check_ssl() {
     fi
 
     if [ -f "$CA" -a -f "$KEY" -a -f "$CERT" ]; then
-        GARBD_OPTS="-o socket.ssl_ca=${CA};socket.ssl_cert=${CERT};socket.ssl_key=${KEY};socket.ssl_cipher="
+        GARBD_OPTS="socket.ssl_ca=${CA};socket.ssl_cert=${CERT};socket.ssl_key=${KEY};socket.ssl_cipher=;${GARBD_OPTS}"
         SOCAT_OPTS="openssl-listen:4444,reuseaddr,cert=${CERT},key=${KEY},cafile=${CA},verify=1,retry=30"
     fi
 }
@@ -57,11 +57,8 @@ function request_streaming() {
             --address "gcomm://$NODE_NAME.$PXC_SERVICE?gmcast.listen_addr=tcp://0.0.0.0:4444" \
             --donor "$NODE_NAME" \
             --group "$PXC_SERVICE" \
-            $GARBD_OPTS \
+            --options "$GARBD_OPTS" \
             --sst "xtrabackup-v2:$LOCAL_IP:4444/xtrabackup_sst//1"
-
-    timeout -k 110 100 \
-        socat -u "$SOCAT_OPTS" stdio
 }
 
 function backup_volume() {
@@ -71,8 +68,17 @@ function backup_volume() {
 
     echo "Backup to $BACKUP_DIR started"
     request_streaming
+
+    # mostly always the first "socat" run receive SST info only
     socat -u "$SOCAT_OPTS" stdio \
         > xtrabackup.stream
+
+    # but sometimes we receive real data during the first "socat" run
+    # in such case we need to detect if we need to do the second "socat" run
+    if (( $(stat -c%s xtrabackup.stream) < 50000000 )); then
+        socat -u "$SOCAT_OPTS" stdio \
+            > xtrabackup.stream
+    fi
     echo "Backup finished"
 
     stat xtrabackup.stream
@@ -88,14 +94,26 @@ function backup_s3() {
 
     echo "Backup to s3://$S3_BUCKET/$S3_BUCKET_PATH started"
     mc -C /tmp/mc config host add dest "${ENDPOINT:-https://s3.amazonaws.com}" "$ACCESS_KEY_ID" "$SECRET_ACCESS_KEY"
+    xbcloud delete --storage=s3 --s3-bucket="$S3_BUCKET" "$S3_BUCKET_PATH" || :
     request_streaming
+
+    # mostly always the first "socat" run receive SST info only
     socat -u "$SOCAT_OPTS" stdio \
         | xbcloud put --storage=s3 --parallel=10 --md5 --s3-bucket="$S3_BUCKET" "$S3_BUCKET_PATH"
+
+    # but sometimes we receive real data during the first "socat" run
+    # in such case we need to detect if we need to do the second "socat" run
+    ib_size=$(mc -C /tmp/mc stat --json "dest/$S3_BUCKET/$S3_BUCKET_PATH/xtrabackup_checkpoints.00000000000000000000" | sed -e 's/.*"size":\([0-9]*\).*/\1/')
+    if [[ $ib_size =~ "Object does not exist" ]] || (( $ib_size < 20 )); then
+        xbcloud delete --storage=s3 --s3-bucket="$S3_BUCKET" "$S3_BUCKET_PATH"
+        socat -u "$SOCAT_OPTS" stdio \
+            | xbcloud put --storage=s3 --parallel=10 --md5 --s3-bucket="$S3_BUCKET" "$S3_BUCKET_PATH"
+    fi
     echo "Backup finished"
 
     mc -C /tmp/mc stat "dest/$S3_BUCKET/$S3_BUCKET_PATH.md5"
-    s3_size=$(mc -C /tmp/mc stat --json "dest/$S3_BUCKET/$S3_BUCKET_PATH.md5" | sed -e 's/.*"size":\([0-9]*\).*/\1/')
-    if (( $s3_size < 25000 )); then
+    md5_size=$(mc -C /tmp/mc stat --json "dest/$S3_BUCKET/$S3_BUCKET_PATH.md5" | sed -e 's/.*"size":\([0-9]*\).*/\1/')
+    if [[ $md5_size =~ "Object does not exist" ]] || (( $md5_size < 25000 )); then
         echo empty backup
         exit 1
     fi
