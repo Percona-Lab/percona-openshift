@@ -40,6 +40,7 @@ RUN yum update -y --disableplugin=subscription-manager \
         Percona-XtraDB-Cluster-garbd-57-${PXC_VERSION} \
         percona-xtrabackup-24-${XTRABACKUP_VERSION} \
         socat \
+        hostname \
     && yum clean all \
     && rm -rf /var/cache/yum /var/lib/mysql
 
