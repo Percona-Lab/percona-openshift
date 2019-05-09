@@ -28,6 +28,7 @@ function join {
 
 NODE_IP=$(hostname -i)
 CLUSTER_NAME="$(hostname -f | cut -d'.' -f2)"
+SERVER_ID=${HOSTNAME/$CLUSTER_NAME-}
 
 while read -ra LINE; do
     echo "read line $LINE"
@@ -42,6 +43,7 @@ if [ "${#PEERS[@]}" != 0 ]; then
 fi
 
 CFG=/etc/mysql/node.cnf
+sed "s|^server_id=.*$|server_id=1${SERVER_ID}|" ${CFG} 1<> ${CFG}
 sed "s|^wsrep_node_address=.*$|wsrep_node_address=${NODE_IP}|" ${CFG} 1<> ${CFG}
 sed "s|^wsrep_cluster_name=.*$|wsrep_cluster_name=${CLUSTER_NAME}|" ${CFG} 1<> ${CFG}
 sed "s|^wsrep_cluster_address=.*$|wsrep_cluster_address=gcomm://${WSREP_CLUSTER_ADDRESS}|" ${CFG} 1<> ${CFG}
