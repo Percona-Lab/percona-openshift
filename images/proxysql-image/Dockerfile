@@ -55,6 +55,9 @@ RUN chmod a+x /usr/bin/add_pxc_nodes.sh
 COPY add_proxysql_nodes.sh /usr/bin/add_proxysql_nodes.sh
 RUN chmod a+x /usr/bin/add_proxysql_nodes.sh
 
+COPY proxysql-admin /usr/bin/proxysql-admin
+RUN chmod a+x /usr/bin/proxysql-admin
+
 COPY peer-list /usr/bin/peer-list
 
 RUN install -o 1001 -g 0 -m 775 -d /etc/proxysql /var/lib/proxysql
