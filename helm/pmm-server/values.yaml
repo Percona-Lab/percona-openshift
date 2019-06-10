@@ -40,4 +40,6 @@ resources:
     memory: 1Gi
     cpu: 0.5
 
-globalIP: ""
+service:
+  type: LoadBalancer
+  loadBalancerIP: ""
