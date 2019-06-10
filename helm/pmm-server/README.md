@@ -42,7 +42,7 @@ The following tables lists the configurable parameters of the Percona chart and 
 | `persistence.storageClass` | Type of persistent volume claim     | nil  (uses alpha storage class annotation)                 |
 | `persistence.accessMode`   | ReadWriteOnce or ReadOnly           | ReadWriteOnce                                              |
 | `resources`                | CPU/Memory resource requests/limits | Memory: `1Gi`, CPU: `0.5`                                  |
-| `globalIP`                 | IP address for the public access    | ""                                                         |
+| `loadBalancerIP`           | IP address for the public access    | ""                                                         |
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 
