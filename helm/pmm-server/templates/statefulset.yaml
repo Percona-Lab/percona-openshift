@@ -108,7 +108,7 @@ spec:
               ln -s /pmmdata/mysql /var/lib/
               ln -s /pmmdata/grafana /var/lib/
 
-{{ if eq .Values.platform "openshift" }}
+{{ if and (eq .Values.platform "openshift") (eq .Values.service.type "LoadBalancer") }}
               # http2 is not supported in openshift now
               sed -e "s^ http2^^" /etc/nginx/conf.d/pmm.conf > /tmp/nginx
               cat /tmp/nginx > /etc/nginx/conf.d/pmm.conf

@@ -1,0 +1,26 @@
+{{ if and (eq .Values.platform "openshift") (ne .Values.service.type "LoadBalancer") }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: "{{ template "percona.fullname" . }}"
+  labels:
+    component: pmm
+    app: {{ template "percona.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  host: ""
+  port:
+    targetPort: 8443
+  tls:
+    termination: passthrough
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: "{{ template "percona.fullname" . }}-service"
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress: []
+{{ end }}
