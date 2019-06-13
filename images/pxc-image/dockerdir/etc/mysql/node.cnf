@@ -4,7 +4,7 @@ ignore-db-dir=lost+found
 datadir=/var/lib/mysql
 socket=/tmp/mysql.sock
 
-server_id=0
+#server_id=0
 binlog_format=ROW
 default_storage_engine=InnoDB
 
@@ -17,12 +17,10 @@ bind_address = 0.0.0.0
 
 wsrep_slave_threads=2
 wsrep_cluster_address=gcomm://
-
-wsrep_node_address=noname
-
 wsrep_provider=/usr/lib64/galera3/libgalera_smm.so
 
 wsrep_cluster_name=noname
+#wsrep_node_address=noname
 
 wsrep_sst_method=xtrabackup-v2
 wsrep_sst_auth="root:"
