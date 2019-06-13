@@ -10,31 +10,24 @@
 #
 # Grant privileges required:
 # GRANT PROCESS ON *.* TO 'clustercheck'@'localhost' IDENTIFIED BY 'clustercheckpassword!';
-# Changed by Alexander Rubin to fix the Openshift/Kubernetes issue where we can't pass env parameters to liveness probes
 
 if [[ $1 == '-h' || $1 == '--help' ]];then
     echo "Usage: $0 <user> <pass> <available_when_donor=0|1> <log_file> <available_when_readonly=0|1> <defaults_extra_file>"
     exit
 fi
 
-# if the disabled file is present, return error. This allows
-# admins to manually remove a node from a cluster easily.
-if [ -e "/var/tmp/clustercheck.disabled" ]; then
-    exit 1
+MYSQL_USERNAME="${1-clustercheckuser}"
+MYSQL_PASSWORD="${2-clustercheckpassword!}"
+AVAILABLE_WHEN_DONOR=${3:-0}
+ERR_FILE="${4:-/dev/null}"
+AVAILABLE_WHEN_READONLY=${5:-1}
+DEFAULTS_EXTRA_FILE=${6:-/etc/my.cnf}
+
+# CLUSTER_NAME to be set in enviroment
+# DISCOVERY_SERVICE to be set in enviroment
+if [ "${DISCOVERY_SERVICE:0:4}" != "http" ]; then
+    DISCOVERY_SERVICE="http://${DISCOVERY_SERVICE}"
 fi
-
-set -e
-
-if [ -f /etc/sysconfig/clustercheck ]; then
-        . /etc/sysconfig/clustercheck
-fi
-
-MYSQL_USERNAME="${MYSQL_USERNAME:-clustercheck}"
-MYSQL_PASSWORD="${CLUSTERCHECK_PASSWORD:-clustercheckpassword!}"
-AVAILABLE_WHEN_DONOR=${AVAILABLE_WHEN_DONOR:-1}
-ERR_FILE="${ERR_FILE:-/var/log/mysql/clustercheck.log}"
-AVAILABLE_WHEN_READONLY=${AVAILABLE_WHEN_READONLY:-1}
-DEFAULTS_EXTRA_FILE=${DEFAULTS_EXTRA_FILE:-/etc/my.cnf}
 
 #Timeout exists for instances where mysqld may be hung
 TIMEOUT=10
@@ -49,6 +42,12 @@ if [[ -r $DEFAULTS_EXTRA_FILE ]];then
 else
     MYSQL_CMDLINE="mysql -nNE --connect-timeout=$TIMEOUT ${EXTRA_ARGS}"
 fi
+
+ipaddr=$(hostname -i | awk ' { print $1 } ')
+hostname=$(hostname)
+
+while true
+do
 #
 # Perform the query to check the wsrep_local_state
 #
@@ -69,14 +68,20 @@ then
             # read-only mode. The variable AVAILABLE_WHEN_READONLY is set to 0.
             # => return HTTP 503
             # Shell return-code is 1
-            exit 1
+	    curl $DISCOVERY_SERVICE/v2/keys/pxc-cluster/$CLUSTER_NAME/$ipaddr/?recursive=true -XDELETE 2>>$ERR_FILE >>$ERR_FILE
         fi
     fi
     # Percona XtraDB Cluster node local state is 'Synced' => return HTTP 200
     # Shell return-code is 0
-    exit 0
+    curl $DISCOVERY_SERVICE/v2/keys/pxc-cluster/$CLUSTER_NAME/$ipaddr/ipaddr -XPUT -d value="$ipaddr" -d ttl=30 2>>$ERR_FILE >>$ERR_FILE
+    curl $DISCOVERY_SERVICE/v2/keys/pxc-cluster/$CLUSTER_NAME/$ipaddr/hostname -XPUT -d value="$hostname" -d ttl=30 2>>$ERR_FILE >>$ERR_FILE
+    curl $DISCOVERY_SERVICE/v2/keys/pxc-cluster/$CLUSTER_NAME/$ipaddr -XPUT -d ttl=30 -d dir=true -d prevExist=true 2>>$ERR_FILE >>$ERR_FILE
 else
     # Percona XtraDB Cluster node local state is not 'Synced' => return HTTP 503
     # Shell return-code is 1
-    exit 1
+    curl $DISCOVERY_SERVICE/v2/keys/pxc-cluster/$CLUSTER_NAME/$ipaddr/?recursive=true -XDELETE 2>>$ERR_FILE >>$ERR_FILE
 fi
+
+sleep 5
+
+done
