@@ -114,6 +114,7 @@ RUN chown pmm:pmm /etc/nginx/conf.d/pmm.conf \
 RUN chmod g+w /etc/passwd
 # needed for rsync & rm cmd on openshift
 RUN chmod -R g+rwx \
+    /var/lib/nginx/tmp/proxy \
     /var/lib/mysql \
     /var/lib/grafana
 # needed for start services on openshift
