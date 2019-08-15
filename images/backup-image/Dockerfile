@@ -1,53 +1,63 @@
-FROM registry.access.redhat.com/ubi7/ubi
-MAINTAINER Percona Development <info@percona.com>
+FROM registry.access.redhat.com/ubi7/ubi-minimal
 
 LABEL name="Percona XtraBackup" \
-      release="2.4" \
-      vendor="Percona" \
-      summary="Percona XtraBackup is an open-source hot backup utility for MySQL - based servers that doesn’t lock your database during the backup" \
-      description="Percona XtraBackup works with MySQL, MariaDB, and Percona Server. It supports completely non-blocking backups of InnoDB, XtraDB, and HailDB storage engines. In addition, it can back up the following storage engines by briefly pausing writes at the end of the backup: MyISAM, Merge, and Archive, including partitioned tables, triggers, and database options."
-
-RUN groupadd -g 1001 mysql
-RUN useradd -u 1001 -r -g 1001 -s /sbin/nologin \
-        -c "Default Application User" mysql
+	release="2.4" \
+	vendor="Percona" \
+	summary="Percona XtraBackup is an open-source hot backup utility for MySQL - based servers that doesn’t lock your database during the backup" \
+	description="Percona XtraBackup works with MySQL, MariaDB, and Percona Server. It supports completely non-blocking backups of InnoDB, XtraDB, and HailDB storage engines. In addition, it can back up the following storage engines by briefly pausing writes at the end of the backup: MyISAM, Merge, and Archive, including partitioned tables, triggers, and database options." \
+	maintainer="Percona Development <info@percona.com>"
 
 # check repository package signature in secure way
 RUN export GNUPGHOME="$(mktemp -d)" \
-    && gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A \
-    && gpg --export --armor 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A > ${GNUPGHOME}/RPM-GPG-KEY-Percona \
-    && rpmkeys --import ${GNUPGHOME}/RPM-GPG-KEY-Percona \
-    && curl -L -o /tmp/percona-release.rpm https://repo.percona.com/percona/yum/percona-release-0.1-10.noarch.rpm \
-    && rpmkeys --checksig /tmp/percona-release.rpm \
-    && yum install -y --disableplugin=subscription-manager /tmp/percona-release.rpm \
-    && rm -rf "$GNUPGHOME" /tmp/percona-release.rpm \
-    && rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+	&& gpg --keyserver pool.sks-keyservers.net --recv-keys 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5 91E97D7C4A5E96F17F3E888F6A2FAEA2352C64E5 \
+	&& gpg --export --armor 430BDF5C56E7C94E848EE60C1C4CBDCDCD2EFD2A > ${GNUPGHOME}/RPM-GPG-KEY-Percona \
+	&& gpg --export --armor 6341AB2753D78A78A7C27BB124C6A8A7F4A80EB5 > ${GNUPGHOME}/RPM-GPG-KEY-CentOS-7 \
+	&& gpg --export --armor 91E97D7C4A5E96F17F3E888F6A2FAEA2352C64E5 > ${GNUPGHOME}/RPM-GPG-KEY-EPEL-7 \
+	&& rpmkeys --import ${GNUPGHOME}/RPM-GPG-KEY-Percona ${GNUPGHOME}/RPM-GPG-KEY-CentOS-7 ${GNUPGHOME}/RPM-GPG-KEY-EPEL-7 \
+	&& curl -L -o /tmp/percona-release.rpm https://repo.percona.com/yum/percona-release-latest.noarch.rpm \
+	&& rpmkeys --checksig /tmp/percona-release.rpm \
+	&& rpm -i /tmp/percona-release.rpm \
+	&& rm -rf "$GNUPGHOME" /tmp/percona-release.rpm \
+	&& rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 # install exact version of PS for repeatability
-ENV PXC_VERSION 5.7.25-31.35.1.el7
 ENV XTRABACKUP_VERSION 2.4.14-1.el7
-ENV KUBECTL_VERSION=v1.14.1
-ENV KUBECTL_MD5SUM=223668b6d47121a9011645b04f5ef349
+ENV PS_VERSION 5.7.26-29.1.el7
+ENV PXC_VERSION 5.7.26-31.37.1.el7
+ENV KUBECTL_VERSION=v1.15.2
+ENV KUBECTL_MD5SUM=daf020f5dc07314f4e388e4a6c9cc201
+
+RUN curl -L -o /tmp/numactl-libs.rpm http://mirror.centos.org/centos/7/os/x86_64/Packages/numactl-libs-2.0.9-7.el7.x86_64.rpm \
+	&& curl -L -o /tmp/libev.rpm http://mirror.centos.org/centos/7/extras/x86_64/Packages/libev-4.15-7.el7.x86_64.rpm \
+	&& rpmkeys --checksig /tmp/numactl-libs.rpm /tmp/libev.rpm \
+	&& rpm -i /tmp/numactl-libs.rpm /tmp/libev.rpm \
+	&& rm -rf /tmp/numactl-libs.rpm /tmp/libev.rpm
+
+RUN microdnf update -y \
+	&& microdnf install -y \
+		Percona-Server-shared-57-${PS_VERSION} \
+		socat \
+		shadow-utils \
+		hostname \
+	&& microdnf clean all
+
+# create mysql user/group before mysql installation
+RUN groupadd -g 1001 mysql \
+	&& useradd -u 1001 -r -g 1001 -s /sbin/nologin \
+		-c "Default Application User" mysql
 
 # we need licenses from docs
-RUN sed -i '/nodocs/d' /etc/yum.conf
-
-RUN yum install -y --disableplugin=subscription-manager \
-        http://mirror.centos.org/centos/7/os/x86_64/Packages/numactl-libs-2.0.9-7.el7.x86_64.rpm \
-        http://mirror.centos.org/centos/7/extras/x86_64/Packages/libev-4.15-7.el7.x86_64.rpm
-RUN yum update -y --disableplugin=subscription-manager \
-    && yum install -y --disableplugin=subscription-manager \
-        Percona-XtraDB-Cluster-57-${PXC_VERSION} \
-        Percona-XtraDB-Cluster-garbd-57-${PXC_VERSION} \
-        percona-xtrabackup-24-${XTRABACKUP_VERSION} \
-        socat \
-        hostname \
-    && yum clean all \
-    && rm -rf /var/cache/yum /var/lib/mysql
+RUN sed -i '/nodocs/d' /etc/yum.conf || : \
+	&& microdnf install -y \
+		Percona-XtraDB-Cluster-client-57-${PXC_VERSION} \
+		Percona-XtraDB-Cluster-garbd-57-${PXC_VERSION} \
+		percona-xtrabackup-24-${XTRABACKUP_VERSION} \
+	&& microdnf clean all \
+	&& rm -rf /var/cache/yum /var/lib/mysql
 
 COPY LICENSE /licenses/LICENSE.Dockerfile
-RUN cp /usr/share/doc/Percona-XtraDB-Cluster-server-57-*/COPYING /licenses/LICENSE.Percona-XtraDB-Cluster \
-    && cp /usr/share/doc/percona-xtradb-cluster-galera/COPYING /licenses/LICENSE.galera \
-    && cp /usr/share/doc/percona-xtradb-cluster-galera/LICENSE.* /licenses/
+RUN cp /usr/share/doc/percona-xtrabackup-24-*/COPYING /licenses/LICENSE.xtrabackup \
+	&& cp /usr/share/doc/percona-xtradb-cluster-garbd-3/COPYING /licenses/LICENSE.garbd
 
 RUN curl -o /usr/bin/kubectl \
         https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl \
