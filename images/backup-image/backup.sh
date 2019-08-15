@@ -58,7 +58,18 @@ function request_streaming() {
             --donor "$NODE_NAME" \
             --group "$PXC_SERVICE" \
             --options "$GARBD_OPTS" \
-            --sst "xtrabackup-v2:$LOCAL_IP:4444/xtrabackup_sst//1"
+            --sst "xtrabackup-v2:$LOCAL_IP:4444/xtrabackup_sst//1" \
+            2>&1 | tee /tmp/garbd.log
+
+    if grep 'State transfer request failed' /tmp/garbd.log; then
+        exit 1
+    fi
+    if grep 'WARN: Protocol violation. JOIN message sender ... (garb) is not in state transfer' /tmp/garbd.log; then
+        exit 1
+    fi
+    if grep 'WARN: Rejecting JOIN message from ... (garb): new State Transfer required.' /tmp/garbd.log; then
+        exit 1
+    fi
 }
 
 function backup_volume() {
