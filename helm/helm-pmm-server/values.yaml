@@ -1,8 +1,8 @@
 ## percona image version
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
-imageRepo: "perconalab/pmm-server-openshift"
-imageTag: "latest"
+imageRepo: "perconalab/pmm-server-fb"
+imageTag: "PR-410-4105b24"
 
 ## A choice between "kubernetes" and "openshift"
 platform: "kubernetes"
