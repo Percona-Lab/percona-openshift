@@ -2,7 +2,7 @@
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
 imageRepo: "perconalab/pmm-server-fb"
-imageTag: "PR-410-2abf7f3"
+imageTag: "PR-410-c7f2032"
 
 ## A choice between "kubernetes" and "openshift"
 platform: "kubernetes"
