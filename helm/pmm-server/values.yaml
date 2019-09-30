@@ -1,8 +1,13 @@
 ## percona image version
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
+<<<<<<< HEAD:helm/pmm-server/values.yaml
 imageRepo: "perconalab/pmm-server-openshift"
 imageTag: "1.17.1"
+=======
+imageRepo: "percona/pmm-server"
+imageTag: "2.0.0"
+>>>>>>> c3a06c9... CLOUD-390 Install PMM2.0 server with root:helm/helm-pmm-server/values.yaml
 
 ## A choice between "kubernetes" and "openshift"
 platform: "openshift"
