@@ -27,7 +27,7 @@ ENV PXC_VERSION 5.7.26-31.37.1.el7
 ENV KUBECTL_VERSION=v1.15.2
 ENV KUBECTL_MD5SUM=daf020f5dc07314f4e388e4a6c9cc201
 
-RUN curl -L -o /tmp/numactl-libs.rpm http://mirror.centos.org/centos/7/os/x86_64/Packages/numactl-libs-2.0.9-7.el7.x86_64.rpm \
+RUN curl -L -o /tmp/numactl-libs.rpm http://mirror.centos.org/centos/7/os/x86_64/Packages/numactl-libs-2.0.12-3.el7.x86_64.rpm \
 	&& curl -L -o /tmp/libev.rpm http://mirror.centos.org/centos/7/extras/x86_64/Packages/libev-4.15-7.el7.x86_64.rpm \
 	&& rpmkeys --checksig /tmp/numactl-libs.rpm /tmp/libev.rpm \
 	&& rpm -i /tmp/numactl-libs.rpm /tmp/libev.rpm \
@@ -36,6 +36,7 @@ RUN curl -L -o /tmp/numactl-libs.rpm http://mirror.centos.org/centos/7/os/x86_64
 RUN microdnf update -y \
 	&& microdnf install -y \
 		Percona-Server-shared-57-${PS_VERSION} \
+		iputils \
 		socat \
 		shadow-utils \
 		hostname \
