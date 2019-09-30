@@ -37,7 +37,7 @@ spec:
           ports:
             - name: https
               protocol: TCP
-              containerPort: 8443
+              containerPort: 443
           volumeMounts:
             - name: pmmdata
               mountPath: /pmmdata
@@ -76,10 +76,10 @@ spec:
                   # pmm-server directories before symlinking
                   mkdir -p /pmmdata
 
-                  rsync -a --owner=$EUID /opt/prometheus/data/ /pmmdata/prometheus-data/
-                  rsync -a --owner=$EUID /opt/consul-data/ /pmmdata/consul-data/
-                  rsync -a --owner=$EUID /var/lib/mysql/ /pmmdata/mysql/
-                  rsync -a --owner=$EUID /var/lib/grafana/ /pmmdata/grafana/
+                  rsync -a --owner=$EUID /srv/prometheus/data/ /pmmdata/prometheus-data/
+                  rsync -a --owner=$EUID /srv/postgres/        /pmmdata/postgres/
+                  rsync -a --owner=$EUID /srv/grafana/         /pmmdata/grafana/
+                  rsync -a --owner=$EUID /srv/clickhouse/      /pmmdata/clickhouse/
 
                   # initialize the PV and then mark it complete
                   touch /pmmdata/app-init
@@ -87,16 +87,18 @@ spec:
 
               # remove the default directories so we can symlink the
               # existing PV directories
-              rm -Rf /opt/prometheus/data
-              rm -Rf /opt/consul-data
-              rm -Rf /var/lib/mysql
-              rm -Rf /var/lib/grafana
+              rm -Rf /srv/prometheus/data
+              rm -Rf /srv/postgres
+              rm -Rf /srv/grafana
+              rm -Rf /srv/clickhouse
 
               # symlink pmm-server paths to point to our PV
-              ln -s /pmmdata/prometheus-data /opt/prometheus/data
-              ln -s /pmmdata/consul-data /opt/
-              ln -s /pmmdata/mysql /var/lib/
-              ln -s /pmmdata/grafana /var/lib/
+              ln -s /pmmdata/prometheus-data /srv/prometheus/data
+              ln -s /pmmdata/postgres        /srv/
+              ln -s /pmmdata/grafana         /srv/
+              ln -s /pmmdata/clickhouse      /srv/
+
+              chmod 700 /pmmdata/postgres
 
 {{ if eq .Values.platform "openshift" }}
               # http2 is not supported in openshift now
