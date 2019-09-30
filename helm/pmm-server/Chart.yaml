@@ -1,5 +1,9 @@
 name: pmm-server
+<<<<<<< HEAD:helm/pmm-server/Chart.yaml
 version: 1.17.1
+=======
+version: 2.0.0
+>>>>>>> 008609f... CLOUD-390 Update helm chart version:helm/helm-pmm-server/Chart.yaml
 description: Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB performance.
 keywords:
 - mysql
