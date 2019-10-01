@@ -108,6 +108,7 @@ spec:
               ln -s /pmmdata/grafana         /srv/
               ln -s /pmmdata/clickhouse      /srv/
 
+              sed -ri "s/(^log_directory = ).*/\1\'\/srv\/logs\'/g" /pmmdata/postgres/postgresql.conf
               chmod 700 /pmmdata/postgres
 
 {{ if and (eq .Values.platform "openshift") (eq .Values.service.type "LoadBalancer") }}
