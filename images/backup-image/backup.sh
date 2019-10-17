@@ -54,7 +54,7 @@ function request_streaming() {
 
     timeout -k 25 20 \
         garbd \
-            --address "gcomm://$NODE_NAME.$PXC_SERVICE?gmcast.listen_addr=tcp://0.0.0.0:4444" \
+            --address "gcomm://$NODE_NAME.$PXC_SERVICE?gmcast.listen_addr=tcp://0.0.0.0:4567" \
             --donor "$NODE_NAME" \
             --group "$PXC_SERVICE" \
             --options "$GARBD_OPTS" \
@@ -68,6 +68,9 @@ function request_streaming() {
         exit 1
     fi
     if grep 'WARN: Rejecting JOIN message from ... (garb): new State Transfer required.' /tmp/garbd.log; then
+        exit 1
+    fi
+    if grep 'INFO: Shifting CLOSED -> DESTROYED (TO: -1)' /tmp/garbd.log; then
         exit 1
     fi
 }
