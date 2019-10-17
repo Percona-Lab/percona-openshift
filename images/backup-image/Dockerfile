@@ -70,7 +70,7 @@ RUN sed -i '/nodocs/d' /etc/yum.conf || : \
                python-chardet \
                libxml2-python \
                yum \	
-        && microdnf clean all
+        && microdnf clean all \
         && rm -rf /var/cache/yum /var/lib/mysql
 
 COPY LICENSE /licenses/LICENSE.Dockerfile
