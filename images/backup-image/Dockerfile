@@ -40,6 +40,7 @@ RUN microdnf update -y \
                 shadow-utils \
                 hostname \
                 yum-utils \
+                libaio \
         && microdnf clean all
 
 # create mysql user/group before mysql installation
