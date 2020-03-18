@@ -4,6 +4,7 @@
 imageRepo: "percona/pmm-server"
 imageTag: "2.3.0"
 
+
 ## A choice between "kubernetes" and "openshift"
 platform: "openshift"
 
