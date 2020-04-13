@@ -41,6 +41,11 @@ spec:
           volumeMounts:
             - name: pmmdata
               mountPath: /pmmdata
+{{ if .Values.prometheus.configMap.name }}              
+            - name: prometheus-configmap
+              mountPath: /srv/prometheus/prometheus.base.yml
+              subPath: prometheus.base.yml
+{{ end }}            
 
           env:
             - name: DISABLE_UPDATES
@@ -119,6 +124,14 @@ spec:
 {{ end }}
 
               bash -x /opt/entrypoint.sh
+
+{{ if .Values.prometheus.configMap.name }}              
+      volumes:
+      - name: prometheus-configmap
+        configMap:
+          name: {{ .Values.prometheus.configMap.name }}
+{{ end }}
+
       {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:
