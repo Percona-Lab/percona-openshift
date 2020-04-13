@@ -44,6 +44,7 @@ The following tables lists the configurable parameters of the Percona chart and 
 | `resources`                | CPU/Memory resource requests/limits | Memory: `1Gi`, CPU: `0.5`                                  |
 | `service.type`             | Option specifying the [Kubernetes Service type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to be used | ""                                                         |
 | `service.loadBalancerIP`   | IP address for the public access    | ""                                                         |
+| `prometheus.configMap.name`   | Name of k8s configMap with scrape_configs    | ""                                                         |
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 
