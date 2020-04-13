@@ -43,3 +43,8 @@ resources:
 service:
   type: LoadBalancer
   loadBalancerIP: ""
+
+## Mount prometheus scrape config https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/
+prometheus:
+  configMap:
+    name: ""
