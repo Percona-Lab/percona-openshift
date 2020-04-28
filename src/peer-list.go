@@ -134,6 +134,8 @@ func main() {
 		newPeers, err = lookup(*svc)
 		if err != nil {
 			log.Printf("%v", err)
+			// Service not resolved - no endpoints, so reset peers list
+			peers = sets.NewString()
 			continue
 		}
 		peerList := newPeers.List()
