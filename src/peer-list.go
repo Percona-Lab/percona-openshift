@@ -132,18 +132,24 @@ func main() {
 	var err error
 	for peers := sets.NewString(); script != ""; time.Sleep(pollPeriod) {
 		newPeers, err = lookup(*svc)
+
 		if err != nil {
 			log.Printf("%v", err)
-			// Service not resolved - no endpoints, so reset peers list
-			peers = sets.NewString()
-			continue
+
+			if lerr, ok := err.(*net.DNSError); ok && lerr.IsNotFound {
+				// Service not resolved - no endpoints, so reset peers list
+				peers = sets.NewString()
+				continue
+			}
 		}
+
 		peerList := newPeers.List()
 		sort.Strings(peerList)
-		if strings.Join(peers.List(),":") != strings.Join(newPeers.List(),":") {
-		  log.Printf("Peer list updated\nwas %v\nnow %v", peers.List(), newPeers.List())
-		  shellOut(strings.Join(peerList, "\n"), script)
-		  peers = newPeers
+
+		if strings.Join(peers.List(), ":") != strings.Join(newPeers.List(), ":") {
+			log.Printf("Peer list updated\nwas %v\nnow %v", peers.List(), newPeers.List())
+			shellOut(strings.Join(peerList, "\n"), script)
+			peers = newPeers
 		}
 		script = *onChange
 	}
