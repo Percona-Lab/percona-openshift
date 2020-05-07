@@ -62,16 +62,6 @@ spec:
 
             - name: METRICS_MEMORY
               value: "600000"
-        
-{{ if .Values.credentials.username }}
-            - name: SERVER_USER
-              value: {{ .Values.credentials.username | quote }}
-{{ end }}
-
-{{ if .Values.credentials.password }}
-            - name: SERVER_PASSWORD
-              value: {{ .Values.credentials.password | quote }}
-{{ end }}
 
           command: ["bash"]
           args:

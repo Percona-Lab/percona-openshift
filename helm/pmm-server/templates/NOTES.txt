@@ -1,2 +1,8 @@
 PMM server can be accessed via port 443 on the following DNS name from within your cluster:
 {{ template "percona.fullname" . }}-service.{{ .Release.Namespace }}.svc.cluster.local
+
+Access credentials ( !!! CHANGE AFTER INSTALL !!! ):
+ login: admin
+ pass: admin
+
+Admin user and password in grafana should be used in pmm-client.
