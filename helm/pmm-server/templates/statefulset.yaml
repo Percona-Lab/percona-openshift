@@ -138,6 +138,9 @@ spec:
       name: pmmdata
     spec:
       accessModes: [ {{ .Values.persistence.accessMode | quote }} ]
+      {{ if .Values.persistence.storageClassName }}
+      storageClassName: {{ .Values.persistence.storageClassName }}
+      {{ end }}
       resources:
         requests:
           storage: {{ .Values.persistence.size }}
