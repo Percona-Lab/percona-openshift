@@ -52,13 +52,13 @@ spec:
               value: "true"
 
             - name: METRICS_RESOLUTION
-              value: "1s"
+              value: {{ .Values.metric.resolution | quote }}
 
             - name: METRICS_RETENTION
-              value: "720h"
+              value: {{ .Values.metric.retention | quote }}
 
             - name: QUERIES_RETENTION
-              value: "8"
+              value: {{ .Values.queries.retention }}
 
             - name: METRICS_MEMORY
               value: "600000"

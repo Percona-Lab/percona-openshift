@@ -32,6 +32,13 @@ credentials:
   username: ""
   password: ""
 
+## set metric collection settings
+metric:
+  resolution: 1s
+  retention: 720h
+queries:
+  retention: 8
+
 ## Configure resource requests and limits
 ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
 ##
