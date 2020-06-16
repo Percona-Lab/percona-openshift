@@ -58,7 +58,7 @@ spec:
               value: {{ .Values.metric.retention | quote }}
 
             - name: QUERIES_RETENTION
-              value: {{ .Values.queries.retention }}
+              value: {{ .Values.queries.retention | quote }}
 
             - name: METRICS_MEMORY
               value: "600000"
