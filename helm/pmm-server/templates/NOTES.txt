@@ -1,2 +1,5 @@
-PMM server can be accessed via port 443 on the following DNS name from within your cluster:
-{{ template "percona.fullname" . }}-service.{{ .Release.Namespace }}.svc.cluster.local
+PMM server can be accessed via HTTPS (port 443) on the following DNS name from within your cluster:
+
+endpoint: https://{{ template "percona.fullname" . }}-service.{{ .Release.Namespace }}.svc.cluster.local
+login:    admin
+password: {{ .Values.credentials.password }}
