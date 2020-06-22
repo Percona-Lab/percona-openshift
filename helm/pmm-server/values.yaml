@@ -2,10 +2,10 @@
 ## ref: https://hub.docker.com/r/library/percona/tags/
 ##
 imageRepo: "percona/pmm-server"
-imageTag: "2.4.0"
+imageTag: "2.7.0"
 
 ## A choice between "kubernetes" and "openshift"
-platform: "openshift"
+platform: "kubernetes"
 
 ## Specify an imagePullPolicy (Required)
 ## It's recommended to change this to 'Always' if the image tag is 'latest'
@@ -29,7 +29,6 @@ persistence:
 
 ## set credentials
 credentials:
-  username: ""
   password: ""
 
 ## set metric collection settings

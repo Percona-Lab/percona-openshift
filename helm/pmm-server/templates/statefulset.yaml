@@ -62,14 +62,9 @@ spec:
 
             - name: METRICS_MEMORY
               value: "600000"
-        
-{{ if .Values.credentials.username }}
-            - name: SERVER_USER
-              value: {{ .Values.credentials.username | quote }}
-{{ end }}
 
 {{ if .Values.credentials.password }}
-            - name: SERVER_PASSWORD
+            - name: ADMIN_PASSWORD
               value: {{ .Values.credentials.password | quote }}
 {{ end }}
 
@@ -121,6 +116,11 @@ spec:
               sed -e "s^ http2^^" /etc/nginx/conf.d/pmm.conf > /tmp/nginx
               cat /tmp/nginx > /etc/nginx/conf.d/pmm.conf
               rm -rf /tmp/nginx
+{{ end }}
+
+{{ if .Values.credentials.password }}
+              ln -s /srv/grafana /usr/share/grafana/data
+              grafana-cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password "$ADMIN_PASSWORD"
 {{ end }}
 
               bash -x /opt/entrypoint.sh
