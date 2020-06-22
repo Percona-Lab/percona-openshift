@@ -29,7 +29,7 @@ persistence:
 
 ## set credentials
 credentials:
-  password: ""
+  password: "admin"
 
 ## set metric collection settings
 metric:
