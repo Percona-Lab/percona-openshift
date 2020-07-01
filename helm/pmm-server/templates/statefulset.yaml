@@ -86,10 +86,11 @@ spec:
                   # pmm-server directories before symlinking
                   mkdir -p /pmmdata
 
-                  rsync -a --owner=$EUID /srv/prometheus/data/ /pmmdata/prometheus-data/
-                  rsync -a --owner=$EUID /srv/postgres/        /pmmdata/postgres/
-                  rsync -a --owner=$EUID /srv/grafana/         /pmmdata/grafana/
-                  rsync -a --owner=$EUID /srv/clickhouse/      /pmmdata/clickhouse/
+                  rsync -a --owner=$EUID /srv/prometheus/data/  /pmmdata/prometheus-data/
+                  rsync -a --owner=$EUID /srv/prometheus/rules/ /pmmdata/prometheus-rules/
+                  rsync -a --owner=$EUID /srv/postgres/         /pmmdata/postgres/
+                  rsync -a --owner=$EUID /srv/grafana/          /pmmdata/grafana/
+                  rsync -a --owner=$EUID /srv/clickhouse/       /pmmdata/clickhouse/
 
                   # initialize the PV and then mark it complete
                   touch /pmmdata/app-init
@@ -98,15 +99,17 @@ spec:
               # remove the default directories so we can symlink the
               # existing PV directories
               rm -Rf /srv/prometheus/data
+              rm -Rf /srv/prometheus/rules
               rm -Rf /srv/postgres
               rm -Rf /srv/grafana
               rm -Rf /srv/clickhouse
 
               # symlink pmm-server paths to point to our PV
-              ln -s /pmmdata/prometheus-data /srv/prometheus/data
-              ln -s /pmmdata/postgres        /srv/
-              ln -s /pmmdata/grafana         /srv/
-              ln -s /pmmdata/clickhouse      /srv/
+              ln -s /pmmdata/prometheus-data  /srv/prometheus/data
+              ln -s /pmmdata/prometheus-rules /srv/prometheus/rules
+              ln -s /pmmdata/postgres         /srv/
+              ln -s /pmmdata/grafana          /srv/
+              ln -s /pmmdata/clickhouse       /srv/
 
               sed -ri "s/(^log_directory = ).*/\1\'\/srv\/logs\'/g" /pmmdata/postgres/postgresql.conf
               chmod 700 /pmmdata/postgres
