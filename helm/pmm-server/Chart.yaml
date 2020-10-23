@@ -1,5 +1,5 @@
 name: pmm-server
-version: 2.7.0
+version: 2.11.1
 description: Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB performance.
 keywords:
 - mysql
