@@ -7,6 +7,13 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+{{- if .Values.statefulSet.labels }}
+{{ toYaml .Values.statefulSet.labels | indent 4 }}
+{{- end }}
+  {{- with .Values.statefulSet.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+  {{- end }}
 spec:
   serviceName: {{ template "percona.fullname" . }}
   replicas: 1
