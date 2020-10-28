@@ -10,10 +10,10 @@ metadata:
 {{- if .Values.statefulSet.labels }}
 {{ toYaml .Values.statefulSet.labels | indent 4 }}
 {{- end }}
-  {{- with .Values.statefulSet.annotations }}
+{{- with .Values.statefulSet.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
-  {{- end }}
+{{- end }}
 spec:
   serviceName: {{ template "percona.fullname" . }}
   replicas: 1

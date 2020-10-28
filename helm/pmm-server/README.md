@@ -45,6 +45,8 @@ The following tables lists the configurable parameters of the Percona chart and 
 | `service.type`             | Option specifying the [Kubernetes Service type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to be used | ""                                                         |
 | `service.loadBalancerIP`   | IP address for the public access    | ""                                                         |
 | `prometheus.configMap.name`   | Name of k8s configMap with scrape_configs    | ""                                                         |
+| `statefulSet.labels`       | Additional labels for the statefulset    | ""                                                    |
+| `statefulSet.annotations`  | Annotations for the statefulset     | ""                                                         |
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 

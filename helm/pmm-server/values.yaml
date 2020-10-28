@@ -55,7 +55,7 @@ prometheus:
   configMap:
     name: ""
 
-## Pass Statefulset Annotations
+## Set Statefulset Labels and Annotations
 statefulSet:
   annotations: {}
   labels: {}
