@@ -69,3 +69,4 @@ ingress:
   #    hosts:
   #      - monitoring-service.example.local
   labels: {}
+  
