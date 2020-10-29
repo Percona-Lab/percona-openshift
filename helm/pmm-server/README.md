@@ -43,8 +43,16 @@ The following tables lists the configurable parameters of the Percona chart and 
 | `persistence.accessMode`   | ReadWriteOnce or ReadOnly           | ReadWriteOnce                                              |
 | `resources`                | CPU/Memory resource requests/limits | Memory: `1Gi`, CPU: `0.5`                                  |
 | `service.type`             | Option specifying the [Kubernetes Service type](https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types) to be used | ""                                                         |
+| `service.port`             | Listening port for the Kubernetes Service | 443                                                  |
 | `service.loadBalancerIP`   | IP address for the public access    | ""                                                         |
 | `prometheus.configMap.name`   | Name of k8s configMap with scrape_configs    | ""                                                         |
+| `ingress.enabled`          | Enable the [Kubernetes Ingress type](https://kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource) | ""                                                         |
+| `ingress.annotations`      | Ingress Annotations  | `false`                                                         |
+| `ingress.path`             | Ingress Path         | `/`                                                         |
+| `ingress.pathType`         | Ingress Path Type [Kubernetes Ingress PathType](https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types)   | `Prefix`                                                         |
+| `ingress.host`             | Ingress Host   | `monitoring-service.example.local`                                                         |
+| `ingress.tls`              | Configure Ingress TLS options [Kubernetes Ingress TLS](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)   | ""                                                         |
+| `ingress.labels`           | Ingress Labels   | ""                                                         |
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 

@@ -12,7 +12,7 @@ spec:
   ports:
     - name: https
       protocol: TCP
-      port: 443
+      port: {{ .Values.service.port }}
       targetPort: 443
   selector:
     component: pmm
