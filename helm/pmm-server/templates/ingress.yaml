@@ -27,6 +27,6 @@ spec:
           - path: {{ .Values.ingress.path }}
             pathType: {{ .Values.ingress.pathType }}
             backend:
-              serviceName: {{ template "percona.fullname" . }}
+              serviceName: "{{ template "percona.fullname" . }}-service"
               servicePort: {{ .Values.service.port }}
 {{- end }}
