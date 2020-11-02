@@ -59,8 +59,7 @@ prometheus:
 statefulSet:
   annotations: {}
   labels: {}
-
-## Set Pod Labels and Annotations
-podTemplate:
-  annotations: {}
-  labels: {}
+  ## Set Pod Labels and Annotations
+  podTemplate:
+    annotations: {}
+    labels: {}
