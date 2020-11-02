@@ -28,6 +28,13 @@ spec:
       labels:
         app: {{ template "percona.fullname" . }}
         component: pmm
+{{- if .Values.podTemplate.labels }}
+{{ toYaml .Values.podTemplate.labels | indent 8 }}
+{{- end }}
+{{- with .Values.podTemplate.annotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       securityContext:
         supplementalGroups: [1000]

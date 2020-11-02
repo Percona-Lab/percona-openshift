@@ -47,6 +47,8 @@ The following tables lists the configurable parameters of the Percona chart and 
 | `prometheus.configMap.name`   | Name of k8s configMap with scrape_configs    | ""                                                         |
 | `statefulSet.labels`       | Additional labels for the statefulset    | ""                                                    |
 | `statefulSet.annotations`  | Annotations for the statefulset     | ""                                                         |
+| `podTemplate.labels`       | Additional labels to be passed to the underlying Pod    | ""                                                    |
+| `podTemplate.annotations`  | Annotations for the Pod     | ""                                                         |
 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 
