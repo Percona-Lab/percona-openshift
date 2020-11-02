@@ -18,4 +18,8 @@ spec:
     component: pmm
     app: {{ template "percona.fullname" . }}
   type: {{ .Values.service.type | quote }}
+{{- if eq .Values.service.type "LoadBalancer" }}
+{{- if .Values.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
+{{- end -}}
+{{- end -}}
