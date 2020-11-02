@@ -29,7 +29,7 @@ spec:
         app: {{ template "percona.fullname" . }}
         component: pmm
 {{- if .Values.statefulSet.podTemplate.labels }}
-{{ toYaml .Values.podTemplate.labels | indent 8 }}
+{{ toYaml .Values.statefulSet.podTemplate.labels | indent 8 }}
 {{- end }}
 {{- with .Values.statefulSet.podTemplate.annotations }}
       annotations:
