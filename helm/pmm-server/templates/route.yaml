@@ -1,4 +1,4 @@
-{{ if and (eq .Values.platform "openshift") (ne .Values.service.type "LoadBalancer") }}
+{{ if and (eq .Values.platform "openshift") }}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
