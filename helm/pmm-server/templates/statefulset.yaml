@@ -10,7 +10,7 @@ metadata:
 spec:
   serviceName: {{ template "percona.fullname" . }}
   replicas: 1
-  updateStrategy: 
+  updateStrategy:
     type: RollingUpdate
   selector:
     matchLabels:
@@ -18,15 +18,18 @@ spec:
       component: pmm
   template:
     metadata:
+      {{ if eq .Values.platform "openshift" }}
+      annotations:
+        openshift.io/scc: {{ .Values.scc | default "privileged" }}
+      {{ end }}
       labels:
         app: {{ template "percona.fullname" . }}
         component: pmm
     spec:
+      serviceAccountName: {{ .Values.sa | default "default" }}
       securityContext:
         supplementalGroups: [1000]
-{{ if eq .Values.platform "kubernetes" }}
         fsGroup: 1000
-{{ end }}
       containers:
         - name: {{ template "percona.fullname" . }}
           image: "{{ .Values.imageRepo }}:{{ .Values.imageTag }}"
@@ -41,11 +44,11 @@ spec:
           volumeMounts:
             - name: pmmdata
               mountPath: /pmmdata
-{{ if .Values.prometheus.configMap.name }}              
+{{ if .Values.prometheus.configMap.name }}
             - name: prometheus-configmap
               mountPath: /srv/prometheus/prometheus.base.yml
               subPath: prometheus.base.yml
-{{ end }}            
+{{ end }}
 
           env:
             - name: DISABLE_UPDATES
@@ -128,7 +131,7 @@ spec:
 
               bash -x /opt/entrypoint.sh
 
-{{ if .Values.prometheus.configMap.name }}              
+{{ if .Values.prometheus.configMap.name }}
       volumes:
       - name: prometheus-configmap
         configMap:

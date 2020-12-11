@@ -17,5 +17,5 @@ spec:
   selector:
     component: pmm
     app: {{ template "percona.fullname" . }}
-  type: {{ .Values.service.type | quote }}
+  type: {{ .Values.service.type | default "LoadBalancer" | quote }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
