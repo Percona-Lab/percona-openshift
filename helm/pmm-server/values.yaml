@@ -12,7 +12,8 @@ platform: "kubernetes"
 ## ref: http://kubernetes.io/docs/user-guide/images/#updating-images
 ##
 imagePullPolicy: Always
-
+scc: null
+sa: null
 ## Persist data to a persitent volume
 persistence:
   enabled: true
@@ -47,7 +48,7 @@ resources:
     cpu: 0.5
 
 service:
-  type: LoadBalancer
+  type: null
   loadBalancerIP: ""
 
 ## Mount prometheus scrape config https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/
