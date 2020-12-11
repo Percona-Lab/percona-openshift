@@ -117,7 +117,7 @@ spec:
               sed -ri "s/(^log_directory = ).*/\1\'\/srv\/logs\'/g" /pmmdata/postgres/postgresql.conf
               chmod 700 /pmmdata/postgres
 
-{{ if and (eq .Values.platform "openshift") (eq .Values.service.type "LoadBalancer") }}
+{{ if and (eq .Values.platform "openshift") }}
               # http2 is not supported in openshift now
               sed -e "s^ http2^^" /etc/nginx/conf.d/pmm.conf > /tmp/nginx
               cat /tmp/nginx > /etc/nginx/conf.d/pmm.conf
