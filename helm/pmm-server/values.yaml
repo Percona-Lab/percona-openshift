@@ -47,8 +47,9 @@ resources:
     memory: 1Gi
     cpu: 0.5
 
+supresshttp2: true
 service:
-  type: null
+  type: LoadBalancer
   loadBalancerIP: ""
 
 ## Mount prometheus scrape config https://www.percona.com/blog/2020/03/23/extending-pmm-prometheus-configuration/
