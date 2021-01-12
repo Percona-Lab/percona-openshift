@@ -94,6 +94,7 @@ spec:
                   rsync -a --owner=$EUID /srv/postgres/         /pmmdata/postgres/
                   rsync -a --owner=$EUID /srv/grafana/          /pmmdata/grafana/
                   rsync -a --owner=$EUID /srv/clickhouse/       /pmmdata/clickhouse/
+                  rsync -a --owner=$EUID /srv/victoriametrics/  /pmmdata/victoriametrics/
 
                   # initialize the PV and then mark it complete
                   touch /pmmdata/app-init
@@ -106,6 +107,7 @@ spec:
               rm -Rf /srv/postgres
               rm -Rf /srv/grafana
               rm -Rf /srv/clickhouse
+              rm -Rf /srv/victoriametrics
 
               # symlink pmm-server paths to point to our PV
               ln -s /pmmdata/prometheus-data  /srv/prometheus/data
@@ -113,6 +115,7 @@ spec:
               ln -s /pmmdata/postgres         /srv/
               ln -s /pmmdata/grafana          /srv/
               ln -s /pmmdata/clickhouse       /srv/
+              ln -s /pmmdata/victoriametrics  /srv/
 
               sed -ri "s/(^log_directory = ).*/\1\'\/srv\/logs\'/g" /pmmdata/postgres/postgresql.conf
               chmod 700 /pmmdata/postgres
