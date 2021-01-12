@@ -56,3 +56,12 @@ service:
 prometheus:
   configMap:
     name: ""
+
+## Set Statefulset Labels and Annotations
+statefulSet:
+  annotations: {}
+  labels: {}
+  ## Set Pod Labels and Annotations
+  podTemplate:
+    annotations: {}
+    labels: {}

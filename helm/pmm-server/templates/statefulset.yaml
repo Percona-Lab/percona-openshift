@@ -7,6 +7,13 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+{{- if .Values.statefulSet.labels }}
+{{ toYaml .Values.statefulSet.labels | indent 4 }}
+{{- end }}
+{{- with .Values.statefulSet.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
 spec:
   serviceName: {{ template "percona.fullname" . }}
   replicas: 1
@@ -25,6 +32,13 @@ spec:
       labels:
         app: {{ template "percona.fullname" . }}
         component: pmm
+{{- if .Values.statefulSet.podTemplate.labels }}
+{{ toYaml .Values.statefulSet.podTemplate.labels | indent 8 }}
+{{- end }}
+{{- with .Values.statefulSet.podTemplate.annotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ .Values.sa | default "default" }}
       securityContext:
