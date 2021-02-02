@@ -1,0 +1,48 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: {{ template "percona.fullname" . }}
+  labels:
+    app: {{ template "percona.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+{{- if .Values.ingress.labels }}
+{{ toYaml .Values.ingress.labels | indent 4 }}
+{{- end }}
+{{- with .Values.ingress.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+{{- if .Values.ingress.tls }}
+  tls:
+{{ toYaml .Values.ingress.tls | indent 4 }}
+{{- end }}
+  rules:
+    {{- if .Values.ingress.rules }}
+    {{- range $rule := .Values.ingress.rules }}
+    - host: {{ $rule.host }}
+      http:
+        paths:
+          - path: {{ $rule.path | default $.Values.ingress.path }}
+            {{- if $rule.pathType }}
+            pathType: {{ $rule.pathType }}
+            {{- end }}
+            backend:
+              serviceName: "{{ template "percona.fullname" $ }}-service"
+              servicePort: {{ $.Values.service.port }}
+    {{- end }}
+    {{- else }}
+    - http:
+        paths:
+          - backend:
+              serviceName:  "{{ template "percona.fullname" $ }}-service"
+              servicePort: {{ $.Values.service.port }}
+            path: {{ $.Values.ingress.path }}
+            {{- if $.Values.ingress.pathType }}
+            pathType: {{ $.Values.ingress.pathType }}
+            {{- end }}
+    {{- end }}
+{{- end }}
