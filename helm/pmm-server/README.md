@@ -48,12 +48,15 @@ The following tables lists the configurable parameters of the Percona chart and 
 | `prometheus.configMap.name`   | Name of k8s configMap with scrape_configs    | ""                                                         |
 | `ingress.enabled`          | Enable the [Kubernetes Ingress type](https://v1-18.docs.kubernetes.io/docs/concepts/services-networking/ingress/#the-ingress-resource) | ""                                                         |
 | `ingress.annotations`      | Ingress Annotations  | `false`                                                         |
+| `ingress.rules[].host` | Ingress Host from multiple hosts | `` |
+| `ingress.rules[].path` | Ingress Path from multiple hosts | `/` |
+| `ingress.rules[].pathType` | Ingress Path Type from multiple hosts | `` |
 | `ingress.path`             | Ingress Path         | `/`                                                         |
-| `ingress.pathType`         | Ingress Path Type [Kubernetes Ingress PathType](https://v1-18.docs.kubernetes.io/docs/concepts/services-networking/ingress/#path-types)   | `Prefix`                                                         |
-| `ingress.host`             | Ingress Host   | `monitoring-service.example.local`                                                         |
+| `ingress.pathType`         | Ingress Path Type [Kubernetes Ingress PathType](https://v1-18.docs.kubernetes.io/docs/concepts/services-networking/ingress/#path-types)   | ``                                                         |
+| `ingress.host`             | Ingress Host   | ``                                                         |
 | `ingress.tls`              | Configure Ingress TLS options [Kubernetes Ingress TLS](https://v1-18.docs.kubernetes.io/docs/concepts/services-networking/ingress/#tls)   | ""                                                         |
 | `ingress.labels`           | Ingress Labels   | ""                                                         |
 
 
-Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. 
+Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 
