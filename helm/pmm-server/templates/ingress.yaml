@@ -21,12 +21,28 @@ spec:
 {{ toYaml .Values.ingress.tls | indent 4 }}
 {{- end }}
   rules:
-    - host: {{ .Values.ingress.host }}
+    {{- if .Values.ingress.rules }}
+    {{- range $rule := .Values.ingress.rules }}
+    - host: {{ $rule.host }}
       http:
         paths:
-          - path: {{ .Values.ingress.path }}
-            pathType: {{ .Values.ingress.pathType }}
+          - path: {{ $rule.path | default $.Values.ingress.path }}
+            {{- if $rule.pathType }}
+            pathType: {{ $rule.pathType }}
+            {{- end }}
             backend:
-              serviceName: "{{ template "percona.fullname" . }}-service"
-              servicePort: {{ .Values.service.port }}
+              serviceName: "{{ template "percona.fullname" $ }}-service"
+              servicePort: {{ $.Values.service.port }}
+    {{- end }}
+    {{- else }}
+    - http:
+        paths:
+          - backend:
+              serviceName:  "{{ template "percona.fullname" $ }}-service"
+              servicePort: {{ $.Values.service.port }}
+            path: {{ $.Values.ingress.path }}
+            {{- if $.Values.ingress.pathType }}
+            pathType: {{ $.Values.ingress.pathType }}
+            {{- end }}
+    {{- end }}
 {{- end }}
