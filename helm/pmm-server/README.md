@@ -1,4 +1,5 @@
 # Percona Monitoring and Management Helm chart
+## 🛑🛑🛑 It is unsupported software, please consider using the officially supported method of installing PMM Server - https://www.percona.com/doc/percona-monitoring-and-management/2.x/setting-up/index.html
 
 Percona Monitoring and Management (PMM) is an open-source platform for managing and monitoring MySQL and MongoDB performance. It is developed by Percona in collaboration with experts in the field of managed database services, support and consulting.
 
