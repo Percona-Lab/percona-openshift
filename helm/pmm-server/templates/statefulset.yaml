@@ -129,9 +129,7 @@ spec:
 
 {{ if .Values.credentials.password }}
               ln -s /srv/grafana /usr/share/grafana/data
-              grafana-cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password "$ADMIN_PASSWORD"
 {{ end }}
-
               bash -x /opt/entrypoint.sh
 
 {{ if .Values.prometheus.configMap.name }}
