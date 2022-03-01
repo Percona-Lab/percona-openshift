@@ -32,7 +32,7 @@ if you plan to use PMM monitoring
 
 To start pmm-server, from helm/helm-pmm-server execute:
 
-    helm install --name monitoring ./helm/helm-pmm-server
+    helm install monitoring ./helm/pmm-server
 
 It will expose a public IP address for the access
 
