@@ -1,5 +1,11 @@
 {{- if .Values.ingress.enabled -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress"}}
 apiVersion: networking.k8s.io/v1beta1
+{{ else }}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ template "percona.fullname" . }}
@@ -27,22 +33,40 @@ spec:
       http:
         paths:
           - path: {{ $rule.path | default $.Values.ingress.path }}
-            {{- if $rule.pathType }}
-            pathType: {{ $rule.pathType }}
+            {{- if $.Values.ingress.pathType }}
+            pathType: {{ $.Values.ingress.pathType }}
+            {{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            pathType: Prefix
             {{- end }}
             backend:
-              serviceName: "{{ template "percona.fullname" $ }}-service"
-              servicePort: {{ $.Values.service.port }}
+              {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+              service:
+                name: {{ template "fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+              {{ else }}
+              serviceName: {{ template "fullname" . }}
+              servicePort: {{ .Values.service.port }}
+              {{- end }}
     {{- end }}
     {{- else }}
     - http:
         paths:
           - backend:
+              {{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+              service:
+                name: "{{ template "percona.fullname" $ }}-service"
+                port:
+                  number: {{ .Values.service.port }}
+              {{ else }}
               serviceName:  "{{ template "percona.fullname" $ }}-service"
               servicePort: {{ $.Values.service.port }}
+              {{- end }}
             path: {{ $.Values.ingress.path }}
             {{- if $.Values.ingress.pathType }}
             pathType: {{ $.Values.ingress.pathType }}
+            {{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            pathType: Prefix
             {{- end }}
     {{- end }}
 {{- end }}
