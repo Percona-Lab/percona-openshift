@@ -91,7 +91,7 @@ spec:
 
                   rsync -a --owner=$EUID /srv/prometheus/data/  /pmmdata/prometheus-data/
                   rsync -a --owner=$EUID /srv/prometheus/rules/ /pmmdata/prometheus-rules/
-                  rsync -a --owner=$EUID /srv/postgres14/       /pmmdata/postgres/
+                  rsync -a --owner=$EUID /srv/postgres14/       /pmmdata/postgres14/
                   rsync -a --owner=$EUID /srv/grafana/          /pmmdata/grafana/
                   rsync -a --owner=$EUID /srv/clickhouse/       /pmmdata/clickhouse/
                   rsync -a --owner=$EUID /srv/victoriametrics/  /pmmdata/victoriametrics/
@@ -104,7 +104,7 @@ spec:
               # existing PV directories
               rm -Rf /srv/prometheus/data
               rm -Rf /srv/prometheus/rules
-              rm -Rf /srv/postgres
+              rm -Rf /srv/postgres14
               rm -Rf /srv/grafana
               rm -Rf /srv/clickhouse
               rm -Rf /srv/victoriametrics
@@ -112,13 +112,13 @@ spec:
               # symlink pmm-server paths to point to our PV
               ln -s /pmmdata/prometheus-data  /srv/prometheus/data
               ln -s /pmmdata/prometheus-rules /srv/prometheus/rules
-              ln -s /pmmdata/postgres         /srv/
+              ln -s /pmmdata/postgres14       /srv/
               ln -s /pmmdata/grafana          /srv/
               ln -s /pmmdata/clickhouse       /srv/
               ln -s /pmmdata/victoriametrics  /srv/
 
-              sed -ri "s/(^log_directory = ).*/\1\'\/srv\/logs\'/g" /pmmdata/postgres/postgresql.conf
-              chmod 700 /pmmdata/postgres
+              sed -ri "s/(^log_directory = ).*/\1\'\/srv\/logs\'/g" /pmmdata/postgres14/postgresql.conf
+              chmod 700 /pmmdata/postgres14
 
 {{ if and (eq .Values.platform "openshift") (eq .Values.service.type "LoadBalancer") (.Values.supresshttp2) }}
               # http2 is not supported in openshift now
