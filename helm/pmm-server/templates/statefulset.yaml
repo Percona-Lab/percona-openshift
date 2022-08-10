@@ -91,7 +91,7 @@ spec:
 
                   rsync -a --owner=$EUID /srv/prometheus/data/  /pmmdata/prometheus-data/
                   rsync -a --owner=$EUID /srv/prometheus/rules/ /pmmdata/prometheus-rules/
-                  rsync -a --owner=$EUID /srv/postgres/         /pmmdata/postgres/
+                  rsync -a --owner=$EUID /srv/postgres14/       /pmmdata/postgres/
                   rsync -a --owner=$EUID /srv/grafana/          /pmmdata/grafana/
                   rsync -a --owner=$EUID /srv/clickhouse/       /pmmdata/clickhouse/
                   rsync -a --owner=$EUID /srv/victoriametrics/  /pmmdata/victoriametrics/
@@ -104,7 +104,7 @@ spec:
               # existing PV directories
               rm -Rf /srv/prometheus/data
               rm -Rf /srv/prometheus/rules
-              rm -Rf /srv/postgres
+              rm -Rf /srv/postgres14
               rm -Rf /srv/grafana
               rm -Rf /srv/clickhouse
               rm -Rf /srv/victoriametrics
